@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Marker</title>
+    <!-- HTML5-QRCode Scanner Library -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; }
+
+        /* Top Navbar */
+        .top-navbar {
+            display: flex; align-items: center; justify-content: space-between;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #ffffff; padding: 14px 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .back-btn { font-size: 20px; cursor: pointer; font-weight: bold; }
+        .nav-title { font-size: 16px; font-weight: bold; letter-spacing: 1px; }
+
+        .container { padding: 15px; }
+
+        /* Status Cards */
+        .card { background: #ffffff; padding: 18px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: center; }
+        .card h3 { margin-top: 0; color: #333; font-size: 16px; }
+
+        /* Scanner Box */
+        #reader { width: 100%; border-radius: 12px; overflow: hidden; border: none !important; }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-block; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: bold; margin-top: 10px;
+        }
+        .status-locating { background: #fff3cd; color: #856404; }
+        .status-success { background: #d4edda; color: #155724; }
+        .status-danger { background: #f8d7da; color: #721c24; }
+
+        .btn-mark {
+            width: 100%; padding: 14px; background: #2e7d32; color: white; border: none; border-radius: 8px;
+            font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px; display: none;
+        }
+    </style>
+</head>
+<body>
+
+        <!-- Header with Back Button -->
+    <div class="top-navbar">
+        <button onclick="window.location.href='index.html'" style="background: none; border: none; color: white; font-size: 16px; font-weight: bold; cursor: pointer; padding: 5px;">
+            ⬅️ Back
+        </button>
+        <span class="nav-title">ATTENDANCE MARKER</span>
+        <span style="width: 50px;"></span>
+    </div>
+
+
+
+    <div class="container">
+
+        <!-- Location Check Card -->
+        <div class="card">
+            <h3>📍 Location Verification</h3>
+            <p id="locationText" style="font-size: 13px; color: #666; margin: 5px 0;">Checking GPS Location...</p>
+            <div id="locationBadge" class="status-badge status-locating">🔄 Verifying Location...</div>
+        </div>
+
+        <!-- Camera Scanner Card -->
+        <div class="card">
+            <h3>📷 Scan Class QR Code</h3>
+            <div id="reader"></div>
+            <p id="scanResult" style="font-size: 13px; color: #555; margin-top: 10px;">Camera access kar rahe hain...</p>
+        </div>
+
+        <!-- Action Button -->
+        <button id="markBtn" class="btn-mark" onclick="submitAttendance()">✅ Mark Attendance Now</button>
+
+    </div>
+
+    <script src="attendance.js"></script>
+</body>
+</html>

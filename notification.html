@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; }
+
+        /* Header Navigation */
+        .top-navbar {
+            display: flex; align-items: center; justify-content: space-between;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #ffffff; padding: 14px 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .back-btn {
+            background: none; border: none; color: white; font-size: 16px;
+            font-weight: bold; cursor: pointer; padding: 5px;
+        }
+        .nav-title { font-size: 15px; font-weight: bold; letter-spacing: 0.5px; }
+
+        .container { padding: 15px; }
+
+        /* Section Headings */
+        .section-title {
+            font-size: 13px; font-weight: bold; color: #555;
+            margin: 15px 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+
+        /* Notification Card Base */
+        .noti-card {
+            background: #ffffff; border-radius: 8px; padding: 12px 14px;
+            margin-bottom: 10px; border-left: 4px solid #ccc;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04); position: relative;
+        }
+
+        /* Category Border Colors */
+        .border-red { border-left-color: #d32f2f; }
+        .border-green { border-left-color: #2e7d32; }
+        .border-orange { border-left-color: #f57c00; }
+        .border-blue { border-left-color: #1976d2; }
+
+        /* Card Content */
+        .noti-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .noti-title { font-size: 14px; font-weight: bold; color: #2c3e50; }
+        .noti-time { font-size: 10px; color: #888; }
+        .noti-desc { font-size: 12px; color: #555; line-height: 1.4; }
+        
+        /* Badges */
+        .tag-badge { font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 6px; }
+        .tag-alert { background: #ffebee; color: #c62828; }
+        .tag-success { background: #e8f5e9; color: #2e7d32; }
+        .tag-info { background: #e3f2fd; color: #1565c0; }
+        .tag-warning { background: #fffde7; color: #f57f17; }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <div class="top-navbar">
+        <button class="back-btn" onclick="window.location.href='index.html'">⬅️ Back</button>
+        <span class="nav-title">NOTIFICATIONS</span>
+        <span style="width: 30px;"></span>
+    </div>
+
+    <div class="container">
+
+        <!-- Category 1: Attendance & Security Alerts -->
+        <div class="section-title">Attendance & Security Alerts</div>
+
+        <div class="noti-card border-red">
+            <div class="noti-header">
+                <span class="noti-title">⚠️ Low Attendance Warning</span>
+                <span class="noti-time">Today, 08:30 AM</span>
+            </div>
+            <div class="noti-desc">Aapki <b>Software Engineering (BCA5002)</b> me attendance <b>66%</b> ho gayi hai. Exam me baithne ke liye 75% required hai.</div>
+            <span class="tag-badge tag-alert">Action Required</span>
+        </div>
+
+        <div class="noti-card border-green">
+            <div class="noti-header">
+                <span class="noti-title">✓ Attendance Marked</span>
+                <span class="noti-time">Today, 09:12 AM</span>
+            </div>
+            <div class="noti-desc"><b>Numerical Methods</b> lecture ke liye aapki attendance successfully QR Scan dwara mark ho gayi hai.</div>
+            <span class="tag-badge tag-success">Confirmed</span>
+        </div>
+
+
+        <!-- Category 2: Academic & Class Alerts -->
+        <div class="section-title">Academic & Class Updates</div>
+
+        <div class="noti-card border-blue">
+            <div class="noti-header">
+                <span class="noti-title">⏰ Upcoming Class Reminder</span>
+                <span class="noti-time">Today, 11:40 AM</span>
+            </div>
+            <div class="noti-desc">Aapki <b>Web Technologies Lab</b> class 10 min baad (11:50 AM) Lab Building / Floor-2 me start hone wali hai.</div>
+            <span class="tag-badge tag-info">10 Min Warning</span>
+        </div>
+
+        <div class="noti-card border-orange">
+            <div class="noti-header">
+                <span class="noti-title">🔄 Class Rescheduled / Cancelled</span>
+                <span class="noti-time">Yesterday, 04:15 PM</span>
+            </div>
+            <div class="noti-desc">Dr. Rajesh Verma ki <b>Computer Networks</b> class aaj cancelled hai. Iska extra lecture kal 03:20 PM par chalega.</div>
+            <span class="tag-badge tag-warning">Schedule Change</span>
+        </div>
+
+
+        <!-- Category 3: Leave Application Updates -->
+        <div class="section-title">Leave Application Updates</div>
+
+        <div class="noti-card border-green">
+            <div class="noti-header">
+                <span class="noti-title">✓ Leave Application Approved</span>
+                <span class="noti-time">01-Sep-2026</span>
+            </div>
+            <div class="noti-desc">Aapki Casual Leave (20-Aug se 21-Aug) Mr. AMIT KUMAR TIWARI dwaara approve kar di gayi hai.</div>
+            <span class="tag-badge tag-success">Approved</span>
+        </div>
+
+        <div class="noti-card border-red">
+            <div class="noti-header">
+                <span class="noti-title">✖ Leave Application Rejected</span>
+                <span class="noti-time">05-Aug-2026</span>
+            </div>
+            <div class="noti-desc"><b>Reason:</b> Official duty document attach nahi kiya gaya tha. Clear certificate ke sath re-apply karein.</div>
+            <span class="tag-badge tag-alert">Rejected</span>
+        </div>
+
+    </div>
+
+</body>
+</html>

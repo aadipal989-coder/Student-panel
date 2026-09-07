@@ -1,0 +1,374 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #9faab5;
+    margin: 0;
+    padding: 15px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.header h3 { margin: 0; font-size: 18px; color: #333; }
+.header p { margin: 3px 0 0 0; font-size: 12px; color: #666; }
+
+.card {
+    background: #ffffff;
+    padding: 18px;
+    border-radius: 12px;
+    margin-top: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.attendance-card { text-align: center; }
+
+.percentage {
+    font-size: 40px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.green { color: #2e7d32; }
+.red { color: #d32f2f; }
+
+.status { font-size: 14px; color: #555; }
+
+.actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.btn-primary { background: #1976d2; color: white; }
+.btn-secondary { background: #e0e0e0; color: #333; }
+
+.subject-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+}
+
+.sub-percent { font-weight: bold; }
+.stats-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+}
+
+.stat-box {
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-label {
+    font-size: 1/* Sidebar Drawer Styling */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 998;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -280px; /* Hide off-screen initially */
+    width: 260px;
+    height: 100%;
+    background: #ffffff;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+    transition: left 0.3s ease;
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar.open {
+    left: 0; /* Slide in */
+}
+
+.sidebar-header {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: white;
+    padding: 20px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.user-profile-mini h3 { margin: 0; font-size: 16px; }
+.user-profile-mini p { margin: 3px 0 0 0; font-size: 12px; opacity: 0.8; }
+
+.close-btn {
+    font-size: 20px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 10px 0;
+    margin: 0;
+    overflow-y: auto;
+}
+
+.sidebar-menu li {
+    padding: 12px 20px;
+    font-size: 14px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    border-bottom: 1px solid #f5f5f5;
+    transition: background 0.2s;
+}
+
+.sidebar-menu li:hover, .sidebar-menu li.active {
+    background: #e8f0fe;
+    color: #1976d2;
+    font-weight: bold;
+}
+
+.sidebar-menu .icon {
+    margin-right: 15px;
+    font-size: 16px;
+}
+
+.logout-item {
+    color: #d32f2f !important;
+    margin-top: 10px;
+}
+2px;
+    color: #666;
+}
+
+.stat-value {
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 4px;
+    color: #333;
+}
+
+.green-text { color: #2395fadd; }
+.red-text { color: #d32f2f; }
+/* Fee Details Section */
+.fee-card {
+    padding: 0 !important;
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+}
+
+.fee-header {
+    background: #2c3e50;
+    color: #ffffff;
+    padding: 10px 15px;
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+.fee-title {
+    background: #34495e;
+    color: #ffffff;
+    padding: 8px 15px;
+    font-size: 12px;
+}
+
+.fee-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: #e0e0e0; /* Border grid color */
+}
+
+.fee-box {
+    background: #ffffff;
+    padding: 12px 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.fee-label {
+    font-size: 10px;
+    color: #666;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.fee-value {
+    font-size: 15px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.pay-box {
+    background: #e8f5e9;
+    cursor: pointer;
+}
+
+.pay-btn {
+    font-size: 12px;
+    font-weight: bold;
+    color: #2e7d32;
+}
+
+.fee-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: #f8f9fa;
+    border-top: 1px solid #eee;
+}
+
+.fee-footer a {
+    font-size: 10px;
+    color: #1976d2;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* Updated Top Navigation Bar Styling */
+.top-navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Content ko dono end par push karega */
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: #ffffff;
+    padding: 14px 18px;
+    margin: -15px -15px 15px -15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+}
+
+.menu-icon {
+    font-size: 22px;
+    cursor: pointer;
+    margin-right: 15px;
+    font-weight: bold;
+}
+
+.nav-title {
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.bell-icon {
+    font-size: 18px;
+    cursor: pointer;
+}
+/* Dynamic Timetable Styling */
+.timetable-card {
+    padding: 0 !important;
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+}
+
+.tt-header {
+    background: #2c3e50;
+    color: #f1c40f;
+    padding: 10px 15px;
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+.tt-day-bar {
+    background: #34495e;
+    color: #3498db;
+    padding: 8px 15px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.tt-body {
+    padding: 12px;
+    background: #f8f9fa;
+}
+
+.tt-slot {
+    background: #ffffff;
+    border: 1px solid #dcdde1;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.tt-time {
+    font-size: 14px;
+    font-weight: bold;
+    color: #1e3c72;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 4px;
+}
+
+.tt-detail {
+    font-size: 12px;
+    color: #444;
+    margin: 4px 0;
+}
+
+.tt-highlight {
+    background: #f1f2f6;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.tt-faculty {
+    background: #fff3cd;
+    color: #856404;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.tt-tag {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 10px;
+    font-weight: bold;
+    color: #e74c3c;
+    letter-spacing: 0.5px;
+}
+
+
+    

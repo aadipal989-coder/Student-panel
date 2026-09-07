@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Attendance</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; }
+
+        /* Top Header Navigation */
+        .top-navbar {
+            display: flex; align-items: center; justify-content: space-between;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #ffffff; padding: 14px 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .back-btn {
+            background: none; border: none; color: white; font-size: 16px;
+            font-weight: bold; cursor: pointer; padding: 5px;
+        }
+        .nav-title { font-size: 15px; font-weight: bold; letter-spacing: 0.5px; }
+
+        .container { padding: 15px; }
+
+        /* Instruction Note */
+        .instruction-box {
+            background: #ffffff; padding: 12px 15px; border-radius: 8px;
+            font-size: 13px; color: #555; margin-bottom: 15px;
+            border-left: 4px solid #1976d2; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        /* Card Layout */
+        .card { background: #ffffff; border-radius: 10px; overflow: hidden; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #e0e0e0; }
+        .card-header { background: #2c3e50; color: #ffffff; padding: 10px 15px; font-size: 13px; font-weight: bold; }
+        .card-body { padding: 15px; }
+
+        /* Form Inputs */
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12px; font-weight: bold; color: #444; margin-bottom: 5px; }
+        .form-control {
+            width: 100%; padding: 10px; font-size: 14px; border: 1px solid #ccc;
+            border-radius: 6px; background: #fff; color: #333; outline: none;
+        }
+
+        /* Form Buttons */
+        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+        .btn {
+            flex: 1; padding: 11px; border: none; border-radius: 6px;
+            font-size: 13px; font-weight: bold; cursor: pointer; display: flex;
+            align-items: center; justify-content: center; gap: 6px;
+        }
+        .btn-view { background: #1976d2; color: white; }
+        .btn-reset { background: #546e7a; color: white; }
+
+        /* Summary Table */
+        .summary-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; text-align: center; background: #e0e0e0; gap: 1px; }
+        .summary-box { background: #ffffff; padding: 12px 5px; }
+        .summary-head { font-size: 11px; font-weight: bold; color: #555; margin-bottom: 6px; }
+        .summary-val { font-size: 18px; font-weight: bold; }
+        .text-green { color: #2e7d32; }
+        .text-red { color: #d32f2f; }
+
+        /* Attendance Status Cards */
+        .status-header-bar { background: #34495e; color: #64b5f6; padding: 8px 15px; font-size: 12px; font-weight: bold; }
+        .lecture-card { background: #ffffff; border: 1px solid #ddd; border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+        .lecture-time { font-size: 14px; font-weight: bold; color: #1e3c72; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .lecture-detail { font-size: 12px; color: #444; margin: 4px 0; }
+        .badge-status { font-size: 11px; font-weight: bold; padding: 3px 8px; border-radius: 12px; }
+        .badge-present { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+        .badge-absent { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
+        .type-tag { font-size: 10px; font-weight: bold; color: #d32f2f; margin-top: 5px; display: inline-block; }
+    </style>
+</head>
+<body>
+
+    <div class="top-navbar">
+        <button class="back-btn" onclick="window.location.href='index.html'">⬅️ Back</button>
+        <span class="nav-title">MY DAILY ATTENDANCE (STUDENTS)</span>
+        <span style="width: 30px;"></span>
+    </div>
+
+    <div class="container">
+
+        <div class="instruction-box">
+            Select the <b>Attendance Date</b> to view the attendance on specific day.
+        </div>
+
+        <div class="card">
+            <div class="card-header">View Attendance</div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label>Student ID</label>
+                    <input type="text" id="studentId" class="form-control" value="245211" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Attendance Date <span style="color:red;">*</span></label>
+                    <input type="date" id="attendanceDate" class="form-control">
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-view" onclick="fetchDailyAttendance()">👁️ View Attendance</button>
+                    <button class="btn btn-reset" onclick="resetForm()">🔄 Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" id="summaryCard">
+            <div class="card-header">Attendance Summary</div>
+            <div class="summary-grid">
+                <div class="summary-box">
+                    <div class="summary-head">TOTAL LECTURES</div>
+                    <div class="summary-val" id="totalLectures">5</div>
+                </div>
+                <div class="summary-box">
+                    <div class="summary-head">TOTAL PRESENT</div>
+                    <div class="summary-val text-green" id="totalPresent">2</div>
+                </div>
+                <div class="summary-box">
+                    <div class="summary-head">TOTAL ABSENT</div>
+                    <div class="summary-val text-red" id="totalAbsent">3</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" id="detailsCard">
+            <div class="status-header-bar" id="statusHeaderDate">
+                Attendance Status on WEDNESDAY, 02-Sep-2026
+            </div>
+            <div class="card-body" id="lectureList">
+                </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Set default date to today
+        document.addEventListener("DOMContentLoaded", () => {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById("attendanceDate").value = today;
+            fetchDailyAttendance();
+        });
+
+        // Sample attendance data
+        const dummyData = [
+            {
+                time: "09:10 AM - 10:05 AM",
+                subject: "Numerical Methods",
+                code: "BCA5004",
+                faculty: "Mr. AMIT KUMAR TIWARI",
+                facultyCode: "KIT971",
+                location: "KIT BUILDING / Floor-1 / R242",
+                status: "PRESENT",
+                type: "LECTURE"
+            },
+            {
+                time: "10:05 AM - 11:00 AM",
+                subject: "Software Engineering",
+                code: "BCA5002",
+                faculty: "Dr. SURESH CHANDRA",
+                facultyCode: "KIT812",
+                location: "KIT BUILDING / Floor-1 / R242",
+                status: "ABSENT",
+                type: "LECTURE"
+            },
+            {
+                time: "11:50 AM - 12:45 PM",
+                subject: "Web Technologies Lab",
+                code: "BCA5005P",
+                faculty: "Er. PRIYA SHARMA",
+                facultyCode: "KIT410",
+                location: "LAB BUILDING / Floor-2 / LAB-3",
+                status: "PRESENT",
+                type: "PRACTICAL / LAB"
+            },
+            {
+                time: "01:30 PM - 02:25 PM",
+                subject: "Computer Networks",
+                code: "BCA5001",
+                faculty: "Dr. RAJESH VERMA",
+                facultyCode: "KIT305",
+                location: "KIT BUILDING / Floor-1 / R242",
+                status: "ABSENT",
+                type: "LECTURE"
+            },
+            {
+                time: "02:25 PM - 03:20 PM",
+                subject: "Cyber Security",
+                code: "BCA5003",
+                faculty: "Ms. ALKA GUPTA",
+                facultyCode: "KIT602",
+                location: "KIT BUILDING / Floor-1 / R242",
+                status: "ABSENT",
+                type: "LECTURE"
+            }
+        ];
+
+        function fetchDailyAttendance() {
+            const selectedDateVal = document.getElementById("attendanceDate").value;
+            if(!selectedDateVal) {
+                alert("Kripya Attendance Date chunein!");
+                return;
+            }
+
+            const dateObj = new Date(selectedDateVal);
+            const options = { weekday: 'long', year: 'numeric', month: 'short', day: '2-digit' };
+            const formattedDateStr = dateObj.toLocaleDateString('en-US', options).toUpperCase();
+
+            // Update Header
+            document.getElementById("statusHeaderDate").innerText = `Attendance Status on ${formattedDateStr}`;
+
+            // Calculate Counts
+            let presentCount = 0;
+            let absentCount = 0;
+
+            const listContainer = document.getElementById("lectureList");
+            listContainer.innerHTML = "";
+
+            dummyData.forEach(lec => {
+                if(lec.status === "PRESENT") presentCount++;
+                else absentCount++;
+
+                const statusBadge = lec.status === "PRESENT" 
+                    ? `<span class="badge-status badge-present">✓ PRESENT</span>` 
+                    : `<span class="badge-status badge-absent">✖ ABSENT</span>`;
+
+                const html = `
+                    <div class="lecture-card">
+                        <div class="lecture-time">
+                            <span>${lec.time}</span>
+                            ${statusBadge}
+                        </div>
+                        <div class="lecture-detail"><b>Subject:</b> ${lec.subject}</div>
+                        <div class="lecture-detail"><b>Subject Code:</b> ${lec.code}</div>
+                        <div class="lecture-detail"><b>Faculty:</b> ${lec.faculty}</div>
+                        <div class="lecture-detail"><b>Faculty Code:</b> ${lec.facultyCode}</div>
+                        <div class="lecture-detail"><b>Location:</b> ${lec.location}</div>
+                        <div class="type-tag">${lec.type}</div>
+                    </div>
+                `;
+                listContainer.innerHTML += html;
+            });
+
+            // Update Summary
+            document.getElementById("totalLectures").innerText = dummyData.length;
+            document.getElementById("totalPresent").innerText = presentCount;
+            document.getElementById("totalAbsent").innerText = absentCount;
+        }
+
+        function resetForm() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById("attendanceDate").value = today;
+            fetchDailyAttendance();
+        }
+    </script>
+</body>
+</html>

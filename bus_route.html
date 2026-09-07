@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bus Route & Tracking</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; }
+
+        /* Top Header Navigation */
+        .top-navbar {
+            display: flex; align-items: center; justify-content: space-between;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #ffffff; padding: 14px 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .back-btn {
+            background: none; border: none; color: white; font-size: 16px;
+            font-weight: bold; cursor: pointer; padding: 5px;
+        }
+        .nav-title { font-size: 15px; font-weight: bold; letter-spacing: 0.5px; }
+
+        .container { padding: 15px; }
+
+        /* Card Layout */
+        .card { background: #ffffff; border-radius: 10px; overflow: hidden; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #e0e0e0; }
+        .card-header { background: #2c3e50; color: #ffffff; padding: 10px 15px; font-size: 13px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+        .card-body { padding: 15px; }
+
+        /* Live Map Simulation Box */
+        .map-box {
+            width: 100%; height: 180px; background: #e3f2fd; border-radius: 8px;
+            position: relative; overflow: hidden; border: 1px solid #90caf9;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .map-bg-grid {
+            position: absolute; width: 100%; height: 100%;
+            background-image: radial-gradient(#1976d2 1px, transparent 1px);
+            background-size: 20px 20px; opacity: 0.2;
+        }
+        .live-pulse {
+            width: 12px; height: 12px; background: #2e7d32; border-radius: 50%;
+            position: absolute; top: 45%; left: 55%;
+            box-shadow: 0 0 0 rgba(46, 125, 50, 0.4);
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.7); }
+            70% { box-shadow: 0 0 0 12px rgba(46, 125, 50, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0); }
+        }
+        .bus-marker {
+            position: absolute; top: 38%; left: 52%; font-size: 24px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .status-badge-live {
+            position: absolute; top: 10px; right: 10px; background: #2e7d32;
+            color: white; padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: bold;
+        }
+
+        /* Alert Banner */
+        .alert-box {
+            background: #fff3e0; border-left: 4px solid #f57c00; color: #e65100;
+            padding: 10px 12px; border-radius: 6px; font-size: 12px; margin-bottom: 15px;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        /* Driver Info & Call Button */
+        .driver-card { display: flex; align-items: center; justify-content: space-between; }
+        .driver-details { font-size: 13px; color: #333; }
+        .driver-details div { margin-bottom: 3px; }
+        .btn-call {
+            background: #2e7d32; color: white; padding: 8px 14px; border-radius: 6px;
+            text-decoration: none; font-size: 12px; font-weight: bold; display: inline-flex;
+            align-items: center; gap: 5px; border: none; cursor: pointer;
+        }
+
+        /* Route Timeline */
+        .timeline { position: relative; padding-left: 20px; margin-top: 10px; }
+        .timeline::before {
+            content: ''; position: absolute; left: 6px; top: 5px; bottom: 5px;
+            width: 2px; background: #ccc;
+        }
+        .stop-item { position: relative; margin-bottom: 15px; font-size: 12px; }
+        .stop-item::before {
+            content: ''; position: absolute; left: -18px; top: 3px;
+            width: 10px; height: 10px; border-radius: 50%; background: #999;
+        }
+        .stop-item.completed::before { background: #2e7d32; }
+        .stop-item.current::before { background: #1976d2; box-shadow: 0 0 0 3px #bbdefb; }
+        .stop-title { font-weight: bold; color: #333; font-size: 13px; }
+        .stop-time { color: #777; font-size: 11px; }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <div class="top-navbar">
+        <button class="back-btn" onclick="window.location.href='index.html'">⬅️ Back</button>
+        <span class="nav-title">BUS ROUTE & TRACKING</span>
+        <span style="width: 30px;"></span>
+    </div>
+
+    <div class="container">
+
+        <!-- Breakdown / Delay Alert -->
+        <div class="alert-box">
+            <span style="font-size: 16px;">⚠️</span>
+            <div><b>Traffic Alert:</b> Route No. 12 is delayed by 10 mins near Rawatpur flyover due to heavy traffic.</div>
+        </div>
+
+        <!-- Live GPS Tracking Map Card -->
+        <div class="card">
+            <div class="card-header">
+                <span>📍 Live GPS Location</span>
+                <span style="font-size: 11px; font-weight: normal;">Route No: 12</span>
+            </div>
+            <div class="card-body" style="padding: 10px;">
+                <div class="map-box">
+                    <div class="map-bg-grid"></div>
+                    <div class="live-pulse"></div>
+                    <div class="bus-marker">🚌</div>
+                    <div class="status-badge-live">● LIVE TRACKING</div>
+                    <div style="position: absolute; bottom: 8px; left: 10px; background: rgba(255,255,255,0.9); padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; color: #333;">
+                        Current Speed: 32 km/h
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bus & Driver Info Card -->
+        <div class="card">
+            <div class="card-header">Bus & Driver Details</div>
+            <div class="card-body">
+                <div class="driver-card">
+                    <div class="driver-details">
+                        <div><b>Bus No:</b> UP 78 AT 4521</div>
+                        <div><b>Driver:</b> Ram Singh Sharma</div>
+                        <div><b>Conductor:</b> Rajesh Kumar</div>
+                    </div>
+                    <a href="tel:9876543210" class="btn-call">
+                        📞 Call Driver
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Route & Stops Timeline -->
+        <div class="card">
+            <div class="card-header">Route & Stop Schedule</div>
+            <div class="card-body">
+                <div class="timeline">
+                    <div class="stop-item completed">
+                        <div class="stop-title">Kalyanpur Crossing (Start)</div>
+                        <div class="stop-time">Departed: 07:30 AM</div>
+                    </div>
+                    <div class="stop-item completed">
+                        <div class="stop-title">Rawatpur Flyover</div>
+                        <div class="stop-time">Departed: 07:45 AM</div>
+                    </div>
+                    <div class="stop-item current">
+                        <div class="stop-title">Gurdev Palace (Next Stop)</div>
+                        <div class="stop-time">Expected: 08:05 AM (Delayed)</div>
+                    </div>
+                    <div class="stop-item">
+                        <div class="stop-title">Vijay Nagar Chauraha</div>
+                        <div class="stop-time">Expected: 08:20 AM</div>
+                    </div>
+                    <div class="stop-item">
+                        <div class="stop-title">College Campus (Destination)</div>
+                        <div class="stop-time">Expected: 08:40 AM</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

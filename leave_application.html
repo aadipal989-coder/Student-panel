@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leave Application</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; }
+
+        /* Header Navigation */
+        .top-navbar {
+            display: flex; align-items: center; justify-content: space-between;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #ffffff; padding: 14px 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .back-btn {
+            background: none; border: none; color: white; font-size: 16px;
+            font-weight: bold; cursor: pointer; padding: 5px;
+        }
+        .nav-title { font-size: 15px; font-weight: bold; letter-spacing: 0.5px; }
+
+        .container { padding: 15px; }
+
+        /* Card Component */
+        .card { background: #ffffff; border-radius: 10px; overflow: hidden; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #e0e0e0; }
+        .card-header { background: #2c3e50; color: #ffffff; padding: 10px 15px; font-size: 13px; font-weight: bold; }
+        .card-body { padding: 15px; }
+
+        /* Form Controls */
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12px; font-weight: bold; color: #444; margin-bottom: 5px; }
+        .form-control {
+            width: 100%; padding: 10px; font-size: 13px; border: 1px solid #ccc;
+            border-radius: 6px; background: #fff; color: #333; outline: none;
+        }
+        .date-row { display: flex; gap: 10px; }
+        .date-row .form-group { flex: 1; }
+
+        /* File Upload Styling */
+        input[type="file"] { padding: 7px; background: #f8f9fa; }
+
+        /* Submit Button */
+        .btn-submit {
+            width: 100%; padding: 12px; background: #1976d2; color: white;
+            border: none; border-radius: 6px; font-size: 14px; font-weight: bold;
+            cursor: pointer; margin-top: 5px;
+        }
+
+        /* Leave History Cards */
+        .leave-item {
+            border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px;
+            margin-bottom: 10px; background: #fff;
+        }
+        .leave-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #f0f0f0; padding-bottom: 6px; margin-bottom: 8px;
+        }
+        .leave-type { font-weight: bold; font-size: 14px; color: #1e3c72; }
+        .leave-dates { font-size: 12px; color: #555; margin-bottom: 4px; }
+        .leave-mentor { font-size: 11px; color: #777; margin-bottom: 6px; }
+        .leave-reason { font-size: 12px; color: #444; background: #f8f9fa; padding: 6px 8px; border-radius: 4px; }
+
+        /* Status Badges */
+        .badge-status { font-size: 11px; font-weight: bold; padding: 4px 10px; border-radius: 12px; }
+        .status-pending { background: #fffde7; color: #f57f17; border: 1px solid #fff59d; }
+        .status-approved { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+        .status-rejected { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <div class="top-navbar">
+        <button class="back-btn" onclick="window.location.href='index.html'">⬅️ Back</button>
+        <span class="nav-title">LEAVE APPLICATION</span>
+        <span style="width: 30px;"></span>
+    </div>
+
+    <div class="container">
+
+        <!-- Leave Form Card -->
+        <div class="card">
+            <div class="card-header">Apply For Leave</div>
+            <div class="card-body">
+                <form id="leaveForm" onsubmit="handleLeaveSubmit(event)">
+                    
+                    <!-- Leave Type Dropdown -->
+                    <div class="form-group">
+                        <label>Leave Type <span style="color:red;">*</span></label>
+                        <select id="leaveType" class="form-control" required>
+                            <option value="">Select Leave Type</option>
+                            <option value="Medical Leave">Medical Leave</option>
+                            <option value="Casual Leave">Casual Leave</option>
+                            <option value="Duty / Office Leave">Duty / Office Leave</option>
+                        </select>
+                    </div>
+
+                    <!-- Date Selection (From & To) -->
+                    <div class="date-row">
+                        <div class="form-group">
+                            <label>From Date <span style="color:red;">*</span></label>
+                            <input type="date" id="fromDate" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>To Date <span style="color:red;">*</span></label>
+                            <input type="date" id="toDate" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <!-- Teacher / Mentor Selection -->
+                    <div class="form-group">
+                        <label>Select Faculty / Mentor <span style="color:red;">*</span></label>
+                        <select id="mentor" class="form-control" required>
+                            <option value="">Select Faculty / Mentor</option>
+                            <option value="Mr. AMIT KUMAR TIWARI (Class Mentor)">Mr. AMIT KUMAR TIWARI (Class Mentor)</option>
+                            <option value="Dr. SURESH CHANDRA (HOD)">Dr. SURESH CHANDRA (HOD)</option>
+                            <option value="Er. PRIYA SHARMA">Er. PRIYA SHARMA</option>
+                        </select>
+                    </div>
+
+                    <!-- Document Attachment -->
+                    <div class="form-group">
+                        <label>Attach Proof / Document (Optional)</label>
+                        <input type="file" id="document" class="form-control" accept="image/*,.pdf">
+                    </div>
+
+                    <!-- Reason Box -->
+                    <div class="form-group">
+                        <label>Reason / Description <span style="color:red;">*</span></label>
+                        <textarea id="reason" class="form-control" rows="3" placeholder="Write reason for leave..." required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-submit">📤 Submit Leave Application</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Leave History Section -->
+        <div class="card">
+            <div class="card-header">Leave Status & History</div>
+            <div class="card-body" id="leaveHistoryList">
+                <!-- Static & Dynamic History List -->
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Sample Initial Leave History Data
+        const initialHistory = [
+            {
+                type: "Medical Leave",
+                fromDate: "2026-09-08",
+                toDate: "2026-09-10",
+                mentor: "Mr. AMIT KUMAR TIWARI (Class Mentor)",
+                reason: "High fever and viral infection. Doctor advised 3 days rest.",
+                status: "Pending"
+            },
+            {
+                type: "Casual Leave",
+                fromDate: "2026-08-20",
+                toDate: "2026-08-21",
+                mentor: "Mr. AMIT KUMAR TIWARI (Class Mentor)",
+                reason: "Attending cousin's wedding ceremony in home town.",
+                status: "Approved"
+            },
+            {
+                type: "Duty / Office Leave",
+                fromDate: "2026-08-05",
+                toDate: "2026-08-05",
+                mentor: "Dr. SURESH CHANDRA (HOD)",
+                reason: "Representing college in Inter-College Tech Fest.",
+                status: "Rejected"
+            }
+        ];
+
+        function renderHistory() {
+            const container = document.getElementById("leaveHistoryList");
+            container.innerHTML = "";
+
+            initialHistory.forEach(item => {
+                let statusClass = "";
+                let statusBadge = "";
+
+                if(item.status === "Pending") {
+                    statusClass = "status-pending";
+                    statusBadge = "⏳ Pending";
+                } else if(item.status === "Approved") {
+                    statusClass = "status-approved";
+                    statusBadge = "✓ Approved";
+                } else {
+                    statusClass = "status-rejected";
+                    statusBadge = "✖ Rejected";
+                }
+
+                const html = `
+                    <div class="leave-item">
+                        <div class="leave-header">
+                            <span class="leave-type">${item.type}</span>
+                            <span class="badge-status ${statusClass}">${statusBadge}</span>
+                        </div>
+                        <div class="leave-dates">📅 <b>Duration:</b> ${item.fromDate} to ${item.toDate}</div>
+                        <div class="leave-mentor">👤 <b>To:</b> ${item.mentor}</div>
+                        <div class="leave-reason"><b>Reason:</b> ${item.reason}</div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        function handleLeaveSubmit(e) {
+            e.preventDefault();
+
+            const type = document.getElementById("leaveType").value;
+            const fromDate = document.getElementById("fromDate").value;
+            const toDate = document.getElementById("toDate").value;
+            const mentor = document.getElementById("mentor").value;
+            const reason = document.getElementById("reason").value;
+
+            // Add new leave to history
+            initialHistory.unshift({
+                type: type,
+                fromDate: fromDate,
+                toDate: toDate,
+                mentor: mentor,
+                reason: reason,
+                status: "Pending"
+            });
+
+            renderHistory();
+
+            alert("Aapki leave application safaltapurvak submit ho gayi hai!");
+            document.getElementById("leaveForm").reset();
+        }
+
+        // Initialize on page load
+        document.addEventListener("DOMContentLoaded", () => {
+            renderHistory();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; }
+
+        /* Sidebar Styling */
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); display: none; z-index: 998;
+        }
+        .sidebar {
+            position: fixed; top: 0; left: -280px; width: 260px; height: 100%;
+            background: #ffffff; box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+            transition: left 0.3s ease; z-index: 999; display: flex; flex-direction: column;
+        }
+        .sidebar.open { left: 0; }
+        .sidebar-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white; padding: 20px 15px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .user-profile-mini h3 { margin: 0; font-size: 16px; }
+        .user-profile-mini p { margin: 3px 0 0 0; font-size: 12px; opacity: 0.8; }
+        .close-btn { font-size: 20px; cursor: pointer; font-weight: bold; }
+        .sidebar-menu { list-style: none; padding: 0; margin: 0; overflow-y: auto; }
+        .sidebar-menu li {
+            padding: 12px 20px; font-size: 14px; color: #333; display: flex; align-items: center;
+            cursor: pointer; border-bottom: 1px solid #f5f5f5;
+        }
+        .sidebar-menu li:hover, .sidebar-menu li.active { background: #e8f0fe; color: #1976d2; font-weight: bold; }
+        .sidebar-menu .icon { margin-right: 15px; font-size: 16px; }
+        .logout-item { color: #d32f2f !important; }
+
+        /* Top Navbar */
+        .top-navbar {
+            display: flex; align-items: center; justify-content: space-between;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #ffffff; padding: 14px 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .nav-left { display: flex; align-items: center; }
+        .menu-icon { font-size: 22px; cursor: pointer; margin-right: 15px; font-weight: bold; }
+        .nav-title { font-size: 16px; font-weight: bold; letter-spacing: 1px; }
+        .bell-icon { font-size: 18px; cursor: pointer; }
+
+        /* Page Content Wrapper */
+        .main-container { padding: 15px; }
+        .header { background: #ffffff; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .header h3 { margin: 0; font-size: 18px; color: #333; }
+        .header p { margin: 3px 0 0 0; font-size: 12px; color: #666; }
+
+        .card { background: #ffffff; padding: 18px; border-radius: 12px; margin-top: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .attendance-card { text-align: center; }
+
+        /* Fee Details */
+        .fee-card { padding: 0 !important; overflow: hidden; border: 1px solid #e0e0e0; }
+        .fee-header { background: #2c3e50; color: #ffffff; padding: 10px 15px; font-size: 13px; font-weight: bold; }
+        .fee-title { background: #34495e; color: #ffffff; padding: 8px 15px; font-size: 12px; }
+        .fee-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: #e0e0e0; }
+        .fee-box { background: #ffffff; padding: 12px 10px; display: flex; flex-direction: column; }
+        .fee-label { font-size: 10px; color: #666; font-weight: bold; margin-bottom: 5px; }
+        .fee-value { font-size: 15px; font-weight: bold; color: #2c3e50; }
+        .pay-box { background: #e8f5e9; cursor: pointer; }
+        .pay-btn { font-size: 12px; font-weight: bold; color: #2e7d32; }
+        .fee-footer { display: flex; justify-content: space-between; padding: 10px 12px; background: #f8f9fa; border-top: 1px solid #eee; }
+        .fee-footer a { font-size: 10px; color: #1976d2; text-decoration: none; font-weight: bold; }
+
+        /* Stats & UI Elements */
+        .stats-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee; }
+        .stat-box { background: #f8f9fa; padding: 10px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; }
+        .stat-label { font-size: 12px; color: #666; }
+        .stat-value { font-size: 16px; font-weight: bold; margin-top: 4px; }
+        .green-text { color: #2e7d32; }
+        .red-text { color: #d32f2f; }
+        .actions { display: flex; gap: 10px; margin-top: 15px; }
+        .btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 14px; color: white; cursor: pointer; }
+        .btn-primary { background: #1976d2; }
+        .btn-secondary { background: #455a64; }
+        .subject-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; font-size: 14px; }
+        .sub-percent { font-weight: bold; }
+
+        /* Timetable */
+        .timetable-card { padding: 0 !important; overflow: hidden; border: 1px solid #e0e0e0; }
+        .tt-header { background: #2c3e50; color: #f1c40f; padding: 10px 15px; font-size: 13px; font-weight: bold; }
+        .tt-day-bar { background: #34495e; color: #3498db; padding: 8px 15px; font-size: 12px; font-weight: bold; }
+        .tt-body { padding: 12px; background: #f8f9fa; }
+        .tt-slot { background: #ffffff; border: 1px solid #dcdde1; border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+        .tt-time { font-size: 14px; font-weight: bold; color: #1e3c72; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 4px; }
+        .tt-detail { font-size: 12px; color: #444; margin: 4px 0; }
+        .tt-highlight { background: #f1f2f6; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+        .tt-faculty { background: #fff3cd; color: #856404; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+        .tt-tag { display: inline-block; margin-top: 6px; font-size: 10px; font-weight: bold; color: #e74c3c; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMenu()"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="user-profile-mini">
+                <h3>Rahul Sharma</h3>
+                <p>Roll No: 21CS45</p>
+            </div>
+            <span class="close-btn" onclick="toggleMenu()">✕</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="active"><span class="icon">📊</span> Dashboard</li>
+            <li onclick="window.location.href='attendance.html'"><span class="icon">📷</span> Attendance Marker</li>
+            <li onclick="window.location.href='daily_attendance.html'"><span class="icon">📅</span> Daily Attendance</li>
+
+            <li onclick="window.location.href='subject_wise.html'"><span class="icon">📚</span> Subject Wise Details</li>
+
+           <li onclick="window.location.href='leave_application.html'"><span class="icon">📝</span> Leave Application</li>
+
+            <li onclick="window.location.href='notification.html'"><span class="icon">🔔</span> Notification</li>
+
+            <li onclick="window.location.href='bus_route.html'"><span class="icon">🚌</span> Bus Route</li>
+
+            <li onclick="window.location.href='setting.html'"><span class="icon">⚙️</span> Setting</li>
+
+            <li class="logout-item" onclick="window.location.href='login.html'"><span class="icon">🚪</span> Logout</li>
+
+        </ul>
+    </div>
+
+    <div class="top-navbar">
+        <div class="nav-left">
+            <span class="menu-icon" onclick="toggleMenu()">☰</span>
+            <span class="nav-title">DASHBOARD</span>
+        </div>
+        <div class="bell-icon" onclick="window.location.href='notification.html'" style="cursor: pointer;">🔔</div>
+
+    </div>
+
+    <div class="main-container">
+        
+        <div class="header">
+            <div class="user-info">
+                <h3>Rahul Sharma</h3>
+                <p>Roll No: 21CS45 | CS Dept</p>
+            </div>
+        </div>
+
+        <div class="card fee-card">
+            <div class="fee-header">MY FEE DETAILS</div>
+            <div class="fee-title">Fee Summary</div>
+            <div class="fee-grid">
+                <div class="fee-box">
+                    <span class="fee-label">OUTSTANDING FEE (LAST YEAR)</span>
+                    <span class="fee-value">₹0.00</span>
+                </div>
+                <div class="fee-box">
+                    <span class="fee-label">FEE PAYABLE (CURRENT YEAR)</span>
+                    <span class="fee-value">₹50000.00</span>
+                </div>
+                <div class="fee-box">
+                    <span class="fee-label">AMOUNT DUE</span>
+                    <span class="fee-value green-text">₹0.00</span>
+                </div>
+                <div class="fee-box pay-box" onclick="alert('Payment Gateway Khul Raha Hai...')">
+                    <span class="fee-label">PAY FEE ONLINE</span>
+                    <span class="pay-btn">💳 PAY NOW</span>
+                </div>
+            </div>
+            <div class="fee-footer">
+                <a href="#" onclick="alert('Refreshing...')">CLICK HERE TO REFRESH DUE AMOUNT</a>
+                <a href="#" onclick="alert('History Khul Rahi Hai...')">VIEW PAYMENT HISTORY</a>
+            </div>
+        </div>
+
+        <div class="card attendance-card">
+            <h2>Overall Attendance</h2>
+            <div style="width: 180px; height: 180px; margin: 0 auto;">
+                <canvas id="attendanceChart"></canvas>
+            </div>
+            <div class="stats-container">
+                <div class="stat-box">
+                    <span class="stat-label">Total Lectures</span>
+                    <span class="stat-value">50</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Total Present</span>
+                    <span class="stat-value green-text">41</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Total Absent</span>
+                    <span class="stat-value red-text">9</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Overall Percentage</span>
+                    <span class="stat-value green-text">82%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" onclick="window.location.href='attendance.html'">📷 Scan QR</button>
+            <button class="btn btn-secondary" onclick="alert('Leave Form Khul Raha Hai...')">📝 Apply Leave</button>
+        </div>
+
+        <div class="card">
+            <h3>Subject Wise Attendance</h3>
+            <div class="subject-item">
+                <span>Mathematics-III</span>
+                <span class="sub-percent green-text">91%</span>
+            </div>
+            <div class="subject-item">
+                <span>Data Structures</span>
+                <span class="sub-percent red-text">66% ⚠️</span>
+            </div>
+            <div class="subject-item">
+                <span>Web Technology</span>
+                <span class="sub-percent green-text">93%</span>
+            </div>
+        </div>
+
+        <div class="card timetable-card">
+            <div class="tt-header">MY TIME TABLE</div>
+            <div class="tt-day-bar" id="currentDay">TODAY</div>
+            <div class="tt-body" id="timetableList"></div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
