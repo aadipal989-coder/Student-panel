@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Settings - College ERP</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f4f6f9; color: #333; padding-bottom: 40px; }
+
+        /* Top Navbar */
+        .navbar {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            color: #ffffff; padding: 14px 18px; display: flex;
+            justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .nav-left { display: flex; align-items: center; gap: 12px; }
+        .menu-btn { font-size: 22px; cursor: pointer; color: #ffffff; line-height: 1; user-select: none; }
+        .nav-title { font-size: 17px; font-weight: bold; letter-spacing: 0.5px; }
+        .notification-box { position: relative; cursor: pointer; font-size: 20px; }
+        .notification-badge {
+            position: absolute; top: -3px; right: -5px;
+            background: #ef4444; color: white; font-size: 9px;
+            font-weight: bold; padding: 2px 5px; border-radius: 50%;
+            border: 1px solid #1e1b4b;
+        }
+
+        /* Side Navigation Drawer Overlay */
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px);
+            display: none; z-index: 200; opacity: 0; transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.active { display: block; opacity: 1; }
+
+        /* Side Navigation Menu Drawer */
+        .sidebar {
+            position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
+            background: #ffffff; z-index: 201; transition: left 0.3s ease;
+            display: flex; flex-direction: column; box-shadow: 4px 0 15px rgba(0,0,0,0.2);
+        }
+        .sidebar.active { left: 0; }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            color: #ffffff; padding: 20px 18px; display: flex;
+            justify-content: space-between; align-items: center;
+        }
+        .sidebar-header h3 { font-size: 16px; font-weight: bold; }
+        .close-btn { font-size: 22px; cursor: pointer; color: #cbd5e1; }
+
+        .sidebar-menu { list-style: none; padding: 15px 0; flex-grow: 1; overflow-y: auto; }
+        .sidebar-menu li a {
+            display: flex; align-items: center; gap: 14px;
+            padding: 12px 20px; font-size: 14px; font-weight: 600;
+            color: #334155; text-decoration: none; transition: background 0.2s, color 0.2s;
+        }
+        .sidebar-menu li a:hover, .sidebar-menu li a.active {
+            background: #e0e7ff; color: #4338ca; border-left: 4px solid #4f46e5;
+        }
+        .sidebar-menu li a .icon { font-size: 18px; width: 24px; text-align: center; }
+
+        .sidebar-divider { height: 1px; background: #e2e8f0; margin: 10px 0; }
+
+        .container { padding: 15px; }
+
+        /* Profile Card Header */
+        .profile-card {
+            background: #ffffff; border-radius: 12px; padding: 15px;
+            display: flex; align-items: center; gap: 15px;
+            border: 1px solid #e2e8f0; box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+            margin-bottom: 15px;
+        }
+        .profile-avatar {
+            width: 55px; height: 55px; border-radius: 50%;
+            background: #4f46e5; color: white; display: flex;
+            align-items: center; justify-content: center;
+            font-size: 22px; font-weight: bold; flex-shrink: 0;
+        }
+        .profile-info h3 { font-size: 15px; color: #1e293b; margin-bottom: 2px; }
+        .profile-info p { font-size: 12px; color: #64748b; margin-bottom: 4px; }
+        .badge-faculty {
+            display: inline-block; background: #e0e7ff; color: #4338ca;
+            font-size: 10px; font-weight: bold; padding: 2px 8px; border-radius: 4px;
+        }
+
+        /* Settings Card Sections */
+        .card {
+            background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0;
+            margin-bottom: 15px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        }
+        .card-header {
+            background: #f8fafc; padding: 12px 15px; border-bottom: 1px solid #e2e8f0;
+            font-size: 13px; font-weight: bold; color: #1e1b4b; display: flex; align-items: center; gap: 8px;
+        }
+        .card-body { padding: 15px; }
+
+        .form-group { margin-bottom: 12px; }
+        .form-label { font-size: 11px; font-weight: bold; color: #475569; display: block; margin-bottom: 5px; text-transform: uppercase; }
+        .form-control {
+            width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px;
+            font-size: 13px; color: #1e293b; background-color: #f8fafc; outline: none;
+        }
+        .form-control:focus { border-color: #4f46e5; background-color: #ffffff; }
+
+        .btn-save {
+            width: 100%; background: #4f46e5; color: white; border: none;
+            padding: 11px; border-radius: 8px; font-size: 13px; font-weight: bold;
+            cursor: pointer; box-shadow: 0 3px 8px rgba(79, 70, 229, 0.3); margin-top: 5px;
+        }
+
+        /* Toggle Options List */
+        .setting-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 0; border-bottom: 1px solid #f1f5f9;
+        }
+        .setting-row:last-child { border-bottom: none; }
+        .setting-label { font-size: 13px; font-weight: 600; color: #334155; }
+        .setting-desc { font-size: 11px; color: #94a3b8; }
+
+        /* Switch Toggle */
+        .switch { position: relative; display: inline-block; width: 42px; height: 22px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #cbd5e1; transition: .3s; border-radius: 22px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px;
+            background-color: white; transition: .3s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #4f46e5; }
+        input:checked + .slider:before { transform: translateX(20px); }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <div class="navbar">
+        <div class="nav-left">
+            <span class="menu-btn" onclick="toggleSidebar()">☰</span>
+            <span class="nav-title">Faculty Settings</span>
+        </div>
+        <div class="notification-box" onclick="window.location.href='faculty_notification.html'">
+            🔔
+            <span class="notification-badge">3</span>
+        </div>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- Side Navigation Menu Drawer -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>Faculty Menu</h3>
+            <span class="close-btn" onclick="toggleSidebar()">✕</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="teacher_dashboard.html"><span class="icon">🏠</span> Dashboard</a></li>
+            <li><a href="attendance_generator.html"><span class="icon">⚡</span> Attendance Generator</a></li>
+            <li><a href="leave_management.html"><span class="icon">📩</span> Leave Management System</a></li>
+            <li><a href="reports_analytics.html"><span class="icon">📊</span> Reports & Analytics</a></li>
+            <li><a href="faculty_notification.html"><span class="icon">🔔</span> Notification</a></li>
+            <li><a href="faculty_settings.html" class="active"><span class="icon">⚙️</span> Setting</a></li>
+            <div class="sidebar-divider"></div>
+            <li><a href="login.html" style="color: #ef4444;"><span class="icon">🚪</span> Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="container">
+
+        <!-- Profile Brief Header Card -->
+        <div class="profile-card">
+            <div class="profile-avatar">RK</div>
+            <div class="profile-info">
+                <h3>Dr. Rajesh Kumar</h3>
+                <p>Senior Assistant Professor (CS Dept)</p>
+                <span class="badge-faculty">ID: FAC-2024-089</span>
+            </div>
+        </div>
+
+        <!-- Section 1: Security & Password -->
+        <div class="card">
+            <div class="card-header">
+                <span>🔒 Password & Security</span>
+            </div>
+            <div class="card-body">
+                <form onsubmit="updatePassword(event)">
+                    <div class="form-group">
+                        <label class="form-label">Current Password</label>
+                        <input type="password" class="form-control" placeholder="••••••••" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">New Password</label>
+                        <input type="password" class="form-control" placeholder="New strong password" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirm New Password</label>
+                        <input type="password" class="form-control" placeholder="Confirm new password" required>
+                    </div>
+                    <button type="submit" class="btn-save">🔒 Change Password</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Section 2: Preferences & Alerts -->
+        <div class="card">
+            <div class="card-header">
+                <span>🔔 Notification Preferences</span>
+            </div>
+            <div class="card-body" style="padding-top: 5px; padding-bottom: 5px;">
+                <div class="setting-row">
+                    <div>
+                        <div class="setting-label">Student Leave Alerts</div>
+                        <div class="setting-desc">Get instant notification on leave requests</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-row">
+                    <div>
+                        <div class="setting-label">Shortage Warnings</div>
+                        <div class="setting-desc">Alert when attendance drops below 75%</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-row">
+                    <div>
+                        <div class="setting-label">Email Notifications</div>
+                        <div class="setting-desc">Receive daily attendance logs via email</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: App System Preferences -->
+        <div class="card">
+            <div class="card-header">
+                <span>📱 App Preferences</span>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label class="form-label">Default Class Selection</label>
+                    <select class="form-control">
+                        <option value="BCA 5th Sem">BCA 5th Sem</option>
+                        <option value="BCA 3rd Sem">BCA 3rd Sem</option>
+                        <option value="MCA 1st Sem">MCA 1st Sem</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Language</label>
+                    <select class="form-control">
+                        <option value="en">English</option>
+                        <option value="hi">Hindi (हिंदी)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JavaScript Functions -->
+    <script>
+        // Toggle Sidebar Drawer
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // Update Password Event
+        function updatePassword(e) {
+            e.preventDefault();
+            alert('✅ Password updated successfully!');
+        }
+    </script>
+</body>
+</html>

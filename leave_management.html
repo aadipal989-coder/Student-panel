@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leave Management System - College ERP</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f4f6f9; color: #333; padding-bottom: 40px; }
+
+        /* Top Navbar */
+        .navbar {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            color: #ffffff; padding: 14px 18px; display: flex;
+            justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .nav-left { display: flex; align-items: center; gap: 12px; }
+        .menu-btn { font-size: 22px; cursor: pointer; color: #ffffff; line-height: 1; user-select: none; }
+        .nav-title { font-size: 17px; font-weight: bold; letter-spacing: 0.5px; }
+        .notification-box { position: relative; cursor: pointer; font-size: 20px; }
+        .notification-badge {
+            position: absolute; top: -3px; right: -5px;
+            background: #ef4444; color: white; font-size: 9px;
+            font-weight: bold; padding: 2px 5px; border-radius: 50%;
+            border: 1px solid #1e1b4b;
+        }
+
+        /* Side Navigation Drawer Overlay */
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px);
+            display: none; z-index: 200; opacity: 0; transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.active { display: block; opacity: 1; }
+
+        /* Side Navigation Menu Drawer */
+        .sidebar {
+            position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
+            background: #ffffff; z-index: 201; transition: left 0.3s ease;
+            display: flex; flex-direction: column; box-shadow: 4px 0 15px rgba(0,0,0,0.2);
+        }
+        .sidebar.active { left: 0; }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            color: #ffffff; padding: 20px 18px; display: flex;
+            justify-content: space-between; align-items: center;
+        }
+        .sidebar-header h3 { font-size: 16px; font-weight: bold; }
+        .close-btn { font-size: 22px; cursor: pointer; color: #cbd5e1; }
+
+        .sidebar-menu { list-style: none; padding: 15px 0; flex-grow: 1; overflow-y: auto; }
+        .sidebar-menu li a {
+            display: flex; align-items: center; gap: 14px;
+            padding: 12px 20px; font-size: 14px; font-weight: 600;
+            color: #334155; text-decoration: none; transition: background 0.2s, color 0.2s;
+        }
+        .sidebar-menu li a:hover, .sidebar-menu li a.active {
+            background: #e0e7ff; color: #4338ca; border-left: 4px solid #4f46e5;
+        }
+        .sidebar-menu li a .icon { font-size: 18px; width: 24px; text-align: center; }
+
+        .sidebar-divider { height: 1px; background: #e2e8f0; margin: 10px 0; }
+
+        .container { padding: 15px; }
+
+        /* Tab Switcher */
+        .tabs { display: flex; background: #e2e8f0; border-radius: 10px; padding: 4px; margin-bottom: 15px; }
+        .tab-btn {
+            flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 12px;
+            font-weight: bold; color: #475569; background: transparent; cursor: pointer; transition: all 0.2s;
+        }
+        .tab-btn.active { background: #ffffff; color: #1e1b4b; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+
+        /* Card Container Styling */
+        .card {
+            background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0;
+            margin-bottom: 15px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+        .card-header {
+            background: #1e1b4b; color: white; padding: 12px 15px;
+            font-size: 13px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;
+        }
+        .card-body { padding: 15px; }
+
+        /* Leave Balance Summary Cards */
+        .balance-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+        .balance-card {
+            background: #ffffff; border-radius: 10px; padding: 10px; text-align: center;
+            border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .balance-num { font-size: 18px; font-weight: bold; color: #4f46e5; }
+        .balance-label { font-size: 10px; font-weight: bold; color: #64748b; margin-top: 2px; }
+
+        /* Form Inputs & Grid */
+        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group.full-width { grid-column: span 2; }
+        .form-label { font-size: 11px; font-weight: bold; color: #475569; text-transform: uppercase; }
+        .form-control {
+            padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px;
+            font-size: 13px; color: #1e293b; background-color: #f8fafc; outline: none;
+        }
+        .form-control:focus { border-color: #4f46e5; background-color: #ffffff; }
+
+        .btn-submit {
+            width: 100%; background: #4f46e5; color: white; border: none;
+            padding: 12px; border-radius: 8px; font-size: 13px; font-weight: bold;
+            cursor: pointer; box-shadow: 0 3px 8px rgba(79, 70, 229, 0.3); margin-top: 15px;
+        }
+
+        /* Student Request Items */
+        .req-item {
+            border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px;
+            margin-bottom: 10px; background: #ffffff; display: flex; flex-direction: column; gap: 8px;
+        }
+        .req-top { display: flex; justify-content: space-between; align-items: center; }
+        .req-name { font-size: 13px; font-weight: bold; color: #1e293b; }
+        .req-roll { font-size: 10px; color: #64748b; }
+        .req-date { font-size: 11px; font-weight: bold; color: #0284c7; background: #e0f2fe; padding: 2px 6px; border-radius: 4px; }
+        .req-reason { font-size: 12px; color: #475569; background: #f8fafc; padding: 8px; border-radius: 6px; }
+
+        .action-btns { display: flex; gap: 8px; margin-top: 4px; }
+        .btn-approve {
+            flex: 1; background: #16a34a; color: white; border: none; padding: 8px;
+            border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;
+        }
+        .btn-reject {
+            flex: 1; background: #dc2626; color: white; border: none; padding: 8px;
+            border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;
+        }
+
+        /* Status Badges */
+        .status-badge { font-size: 10px; font-weight: bold; padding: 3px 8px; border-radius: 12px; }
+        .status-badge.pending { background: #fef3c7; color: #d97706; }
+        .status-badge.approved { background: #dcfce7; color: #15803d; }
+        .status-badge.rejected { background: #fee2e2; color: #b91c1c; }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <div class="navbar">
+        <div class="nav-left">
+            <span class="menu-btn" onclick="toggleSidebar()">☰</span>
+            <span class="nav-title">Leave Management System</span>
+        </div>
+        <div class="notification-box" onclick="window.location.href='faculty_notification.html'">
+    🔔
+    <span class="notification-badge">3</span>
+        </div>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- Side Navigation Menu Drawer -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>Faculty Menu</h3>
+            <span class="close-btn" onclick="toggleSidebar()">✕</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="teacher_dashboard.html"><span class="icon">🏠</span> Dashboard</a></li>
+            <li><a href="attendance_generator.html"><span class="icon">⚡</span> Attendance Generator</a></li>
+            <li><a href="leave_management.html" class="active"><span class="icon">📩</span> Leave management System</a></li>
+            <li><a href="reports_analytics.html"><span class="icon">📊</span> Reports & Analytics</a></li>
+
+          <li><a href="faculty_notification.html"><span class="icon">🔔</span> Notification</a></li>
+
+            <li><a href="faculty_settings.html"><span class="icon">⚙️</span> Setting</a></li>
+
+            <div class="sidebar-divider"></div>
+            <li><a href="login.html" style="color: #ef4444;"><span class="icon">🚪</span> Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="container">
+
+        <!-- Navigation Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('applyTab', this)">📝 Apply Faculty Leave</button>
+            <button class="tab-btn" onclick="switchTab('approvalTab', this)">📩 Student Approvals (2)</button>
+        </div>
+
+        <!-- TAB 1: Faculty Apply Leave Section -->
+        <div id="applyTab">
+            <!-- Leave Balance Summary -->
+            <div class="balance-grid">
+                <div class="balance-card">
+                    <div class="balance-num">08</div>
+                    <div class="balance-label">Casual Leave</div>
+                </div>
+                <div class="balance-card">
+                    <div class="balance-num" style="color: #0284c7;">05</div>
+                    <div class="balance-label">Sick Leave</div>
+                </div>
+                <div class="balance-card">
+                    <div class="balance-num" style="color: #16a34a;">12</div>
+                    <div class="balance-label">Earned Leave</div>
+                </div>
+            </div>
+
+            <!-- Apply Form Card -->
+            <div class="card">
+                <div class="card-header">
+                    <span>📄 New Leave Application</span>
+                    <span style="font-size: 11px; opacity: 0.8;">Faculty Portal</span>
+                </div>
+                <div class="card-body">
+                    <form onsubmit="handleLeaveSubmit(event)">
+                        <div class="form-grid">
+                            <div class="form-group full-width">
+                                <label class="form-label">Leave Category</label>
+                                <select class="form-control" required>
+                                    <option value="">-- Select Type --</option>
+                                    <option>Casual Leave (CL)</option>
+                                    <option>Sick Leave (SL)</option>
+                                    <option>Duty Leave (DL)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">From Date</label>
+                                <input type="date" class="form-control" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">To Date</label>
+                                <input type="date" class="form-control" required>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label class="form-label">Reason For Leave</label>
+                                <textarea class="form-control" rows="3" placeholder="Apna reason detail me likhein..." required></textarea>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label class="form-label">Document Attachment (Optional)</label>
+                                <input type="file" class="form-control">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-submit">📤 Submit Leave Request</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- My Submitted History Card -->
+            <div class="card">
+                <div class="card-header" style="background: #334155;">
+                    <span>📜 My Applied History</span>
+                </div>
+                <div class="card-body">
+                    <div class="req-item">
+                        <div class="req-top">
+                            <span class="req-name">Sick Leave (Medical)</span>
+                            <span class="status-badge approved">✓ Approved</span>
+                        </div>
+                        <div class="req-date">🗓️ 12 Aug - 14 Aug (3 Days)</div>
+                        <div class="req-reason">Fever and Doctor advice rest.</div>
+                    </div>
+
+                    <div class="req-item" style="margin-bottom: 0;">
+                        <div class="req-top">
+                            <span class="req-name">Casual Leave</span>
+                            <span class="status-badge pending">⏳ Pending</span>
+                        </div>
+                        <div class="req-date">🗓️ 25 Sept - 25 Sept (1 Day)</div>
+                        <div class="req-reason">Personal work at home.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: Student Approvals Panel -->
+        <div id="approvalTab" style="display: none;">
+            <div class="card">
+                <div class="card-header" style="background: #0284c7;">
+                    <span>🎓 Pending Student Leave Requests</span>
+                    <span style="font-size: 11px;">BCA 5th Sem</span>
+                </div>
+                <div class="card-body" id="studentReqContainer">
+
+                    <!-- Request 1 -->
+                    <div class="req-item" id="req-1">
+                        <div class="req-top">
+                            <div>
+                                <div class="req-name">Rohan Sharma</div>
+                                <div class="req-roll">Roll No: 245209 (BCA 5th)</div>
+                            </div>
+                            <span class="req-date">🗓️ 10 Sept - 12 Sept</span>
+                        </div>
+                        <div class="req-reason"><b>Reason:</b> Attending sister marriage function out of station.</div>
+                        <div class="action-btns">
+                            <button class="btn-approve" onclick="processRequest('req-1', 'Approved')">✓ Approve</button>
+                            <button class="btn-reject" onclick="processRequest('req-1', 'Rejected')">✕ Reject</button>
+                        </div>
+                    </div>
+
+                    <!-- Request 2 -->
+                    <div class="req-item" id="req-2">
+                        <div class="req-top">
+                            <div>
+                                <div class="req-name">Priya Patel</div>
+                                <div class="req-roll">Roll No: 245221 (BCA 5th)</div>
+                            </div>
+                            <span class="req-date">🗓️ 11 Sept - 11 Sept</span>
+                        </div>
+                        <div class="req-reason"><b>Reason:</b> High viral fever, medical certificate attached.</div>
+                        <div class="action-btns">
+                            <button class="btn-approve" onclick="processRequest('req-2', 'Approved')">✓ Approve</button>
+                            <button class="btn-reject" onclick="processRequest('req-2', 'Rejected')">✕ Reject</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JavaScript Functions -->
+    <script>
+        // Toggle Sidebar Drawer
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // Switch Between Tabs
+        function switchTab(tabId, btn) {
+            document.getElementById('applyTab').style.display = tabId === 'applyTab' ? 'block' : 'none';
+            document.getElementById('approvalTab').style.display = tabId === 'approvalTab' ? 'block' : 'none';
+
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        // Handle Faculty Form Submission
+        function handleLeaveSubmit(e) {
+            e.preventDefault();
+            alert("✅ Leave Application Submitted Successfully!\nHOD Approval ke liye bhej diya gaya hai.");
+            e.target.reset();
+        }
+
+        // Process Student Request (Approve/Reject)
+        function processRequest(elementId, status) {
+            const item = document.getElementById(elementId);
+            if (status === 'Approved') {
+                alert("✅ Student Leave Request Approved!");
+            } else {
+                alert("❌ Student Leave Request Rejected!");
+            }
+            item.style.opacity = '0.5';
+            item.querySelector('.action-btns').innerHTML = `<span class="status-badge ${status.toLowerCase()}">${status === 'Approved' ? '✓ Approved' : '✕ Rejected'}</span>`;
+        }
+    </script>
+</body>
+</html>

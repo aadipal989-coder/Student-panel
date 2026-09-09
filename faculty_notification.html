@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Notifications - College ERP</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f4f6f9; color: #333; padding-bottom: 40px; }
+
+        /* Top Navbar */
+        .navbar {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            color: #ffffff; padding: 14px 18px; display: flex;
+            justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .nav-left { display: flex; align-items: center; gap: 12px; }
+        .menu-btn { font-size: 22px; cursor: pointer; color: #ffffff; line-height: 1; user-select: none; }
+        .nav-title { font-size: 17px; font-weight: bold; letter-spacing: 0.5px; }
+        
+        /* Side Navigation Drawer Overlay */
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px);
+            display: none; z-index: 200; opacity: 0; transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.active { display: block; opacity: 1; }
+
+        /* Side Navigation Menu Drawer */
+        .sidebar {
+            position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
+            background: #ffffff; z-index: 201; transition: left 0.3s ease;
+            display: flex; flex-direction: column; box-shadow: 4px 0 15px rgba(0,0,0,0.2);
+        }
+        .sidebar.active { left: 0; }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            color: #ffffff; padding: 20px 18px; display: flex;
+            justify-content: space-between; align-items: center;
+        }
+        .sidebar-header h3 { font-size: 16px; font-weight: bold; }
+        .close-btn { font-size: 22px; cursor: pointer; color: #cbd5e1; }
+
+        .sidebar-menu { list-style: none; padding: 15px 0; flex-grow: 1; overflow-y: auto; }
+        .sidebar-menu li a {
+            display: flex; align-items: center; gap: 14px;
+            padding: 12px 20px; font-size: 14px; font-weight: 600;
+            color: #334155; text-decoration: none; transition: background 0.2s, color 0.2s;
+        }
+        .sidebar-menu li a:hover, .sidebar-menu li a.active {
+            background: #e0e7ff; color: #4338ca; border-left: 4px solid #4f46e5;
+        }
+        .sidebar-menu li a .icon { font-size: 18px; width: 24px; text-align: center; }
+
+        .sidebar-divider { height: 1px; background: #e2e8f0; margin: 10px 0; }
+
+        .container { padding: 15px; }
+
+        /* Actions Bar */
+        .action-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 12px;
+        }
+        .page-title { font-size: 15px; font-weight: bold; color: #1e1b4b; }
+        .btn-clear {
+            font-size: 11px; color: #dc2626; background: #fee2e2; border: 1px solid #fca5a5;
+            padding: 5px 10px; border-radius: 6px; font-weight: bold; cursor: pointer;
+        }
+
+        /* Filter Chips */
+        .filter-chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 10px; }
+        .chip {
+            padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: bold;
+            background: #ffffff; border: 1px solid #cbd5e1; color: #64748b;
+            cursor: pointer; white-space: nowrap; transition: all 0.2s;
+        }
+        .chip.active { background: #4f46e5; color: #ffffff; border-color: #4f46e5; }
+
+        /* Notification List Item */
+        .notif-card {
+            background: #ffffff; border-radius: 10px; padding: 12px;
+            margin-bottom: 10px; border-left: 4px solid #cbd5e1;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03); position: relative;
+            transition: transform 0.2s;
+        }
+        .notif-card.unread { background: #f0fdf4; border-left-color: #16a34a; }
+        .notif-card.leave { border-left-color: #0284c7; }
+        .notif-card.notice { border-left-color: #d97706; }
+        .notif-card.alert { border-left-color: #dc2626; }
+
+        .notif-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+        .notif-title { font-size: 13px; font-weight: bold; color: #1e293b; display: flex; align-items: center; gap: 6px; }
+        .notif-time { font-size: 10px; color: #94a3b8; font-weight: bold; }
+        .notif-desc { font-size: 12px; color: #475569; line-height: 1.4; margin-bottom: 8px; }
+        
+        .notif-footer { display: flex; justify-content: space-between; align-items: center; }
+        .notif-tag { font-size: 9px; font-weight: bold; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
+        .tag-leave { background: #e0f2fe; color: #0369a1; }
+        .tag-notice { background: #fef3c7; color: #b45309; }
+        .tag-alert { background: #fee2e2; color: #b91c1c; }
+
+        .btn-action {
+            font-size: 11px; font-weight: bold; color: #4f46e5; background: none;
+            border: none; cursor: pointer; text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <div class="navbar">
+        <div class="nav-left">
+            <span class="menu-btn" onclick="toggleSidebar()">☰</span>
+            <span class="nav-title">Faculty Notifications</span>
+        </div>
+      <div class="notification-box" onclick="window.location.href='faculty_notification.html'">
+    🔔
+    <span class="notification-badge">3</span>
+      </div>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- Side Navigation Menu Drawer -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>Faculty Menu</h3>
+            <span class="close-btn" onclick="toggleSidebar()">✕</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="teacher_dashboard.html"><span class="icon">🏠</span> Dashboard</a></li>
+            <li><a href="attendance_generator.html"><span class="icon">⚡</span> Attendance Generator</a></li>
+            <li><a href="leave_management.html"><span class="icon">📩</span> Leave Management System</a></li>
+            <li><a href="reports_analytics.html"><span class="icon">📊</span> Reports & Analytics</a></li>
+            <li><a href="faculty_notification.html" class="active"><span class="icon">🔔</span> Notification</a></li>
+            <li><a href="faculty_settings.html"><span class="icon">⚙️</span> Setting</a></li>
+
+            <div class="sidebar-divider"></div>
+            <li><a href="login.html" style="color: #ef4444;"><span class="icon">🚪</span> Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="container">
+
+        <!-- Top Header Bar -->
+        <div class="action-bar">
+            <span class="page-title">Recent Alerts & Updates</span>
+            <button class="btn-clear" onclick="markAllRead()">✓ Mark All Read</button>
+        </div>
+
+        <!-- Category Filters -->
+        <div class="filter-chips">
+            <div class="chip active" onclick="filterNotif('all', this)">All (4)</div>
+            <div class="chip" onclick="filterNotif('leave', this)">📩 Leave Requests</div>
+            <div class="chip" onclick="filterNotif('notice', this)">📢 College Notices</div>
+            <div class="chip" onclick="filterNotif('alert', this)">⚠️ Attendance Alerts</div>
+        </div>
+
+        <!-- Notification List -->
+        <div id="notifContainer">
+
+            <!-- Item 1: Student Leave -->
+            <div class="notif-card unread leave" data-category="leave">
+                <div class="notif-top">
+                    <div class="notif-title">📩 New Leave Application</div>
+                    <span class="notif-time">10 min ago</span>
+                </div>
+                <div class="notif-desc">
+                    <b>Rohan Sharma</b> (BCA 5th Sem) has applied for 3 days medical leave.
+                </div>
+                <div class="notif-footer">
+                    <span class="notif-tag tag-leave">Leave Request</span>
+                    <button class="btn-action" onclick="location.href='leave_management.html'">View Request →</button>
+                </div>
+            </div>
+
+            <!-- Item 2: College Circular -->
+            <div class="notif-card unread notice" data-category="notice">
+                <div class="notif-top">
+                    <div class="notif-title">📢 Mid-Term Exam Schedule</div>
+                    <span class="notif-time">2 hours ago</span>
+                </div>
+                <div class="notif-desc">
+                    HOD Office: Mid-term examination schedule for BCA 3rd & 5th semester has been published.
+                </div>
+                <div class="notif-footer">
+                    <span class="notif-tag tag-notice">Notice</span>
+                    <button class="btn-action" onclick="alert('Exam Timetable PDF Opening...')">Download PDF</button>
+                </div>
+            </div>
+
+            <!-- Item 3: Low Attendance Warning -->
+            <div class="notif-card alert" data-category="alert">
+                <div class="notif-top">
+                    <div class="notif-title">⚠️ Shortage Warning Generated</div>
+                    <span class="notif-time">Yesterday</span>
+                </div>
+                <div class="notif-desc">
+                    6 students in <b>BCA 5th Sem</b> have attendance below 75% for this month.
+                </div>
+                <div class="notif-footer">
+                    <span class="notif-tag tag-alert">Attendance</span>
+                    <button class="btn-action" onclick="location.href='reports_analytics.html'">Check Report →</button>
+                </div>
+            </div>
+
+            <!-- Item 4: Leave Approved Alert -->
+            <div class="notif-card leave" data-category="leave">
+                <div class="notif-top">
+                    <div class="notif-title">✅ Faculty Leave Status</div>
+                    <span class="notif-time">2 days ago</span>
+                </div>
+                <div class="notif-desc">
+                    Your Casual Leave application for 25th Sept has been approved by HOD.
+                </div>
+                <div class="notif-footer">
+                    <span class="notif-tag tag-leave">Faculty Approval</span>
+                    <button class="btn-action" onclick="location.href='leave_management.html'">View Status →</button>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- JavaScript Functions -->
+    <script>
+        // Toggle Sidebar Drawer
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // Filter Notifications by Category
+        function filterNotif(category, element) {
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+            element.classList.add('active');
+
+            const cards = document.querySelectorAll('.notif-card');
+            cards.forEach(card => {
+                if (category === 'all' || card.dataset.category === category) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Mark All as Read
+        function markAllRead() {
+            document.querySelectorAll('.notif-card').forEach(card => {
+                card.classList.remove('unread');
+            });
+            alert('✅ All notifications marked as read!');
+        }
+    </script>
+</body>
+</html>

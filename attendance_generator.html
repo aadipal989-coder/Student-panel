@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Generator - College ERP</title>
+    <!-- QRCode JS Library for Dynamic QR Code Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f4f6f9; color: #333; padding-bottom: 40px; }
+
+        /* Top Navbar */
+        .navbar {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            color: #ffffff; padding: 14px 18px; display: flex;
+            justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .nav-left { display: flex; align-items: center; gap: 12px; }
+        .menu-btn { font-size: 22px; cursor: pointer; color: #ffffff; line-height: 1; user-select: none; }
+        .nav-title { font-size: 17px; font-weight: bold; letter-spacing: 0.5px; }
+        .notification-box { position: relative; cursor: pointer; font-size: 20px; }
+        .notification-badge {
+            position: absolute; top: -3px; right: -5px;
+            background: #ef4444; color: white; font-size: 9px;
+            font-weight: bold; padding: 2px 5px; border-radius: 50%;
+            border: 1px solid #1e1b4b;
+        }
+
+        /* Side Navigation Drawer Overlay */
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px);
+            display: none; z-index: 200; opacity: 0; transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.active { display: block; opacity: 1; }
+
+        /* Side Navigation Menu */
+        .sidebar {
+            position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
+            background: #ffffff; z-index: 201; transition: left 0.3s ease;
+            display: flex; flex-direction: column; box-shadow: 4px 0 15px rgba(0,0,0,0.2);
+        }
+        .sidebar.active { left: 0; }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            color: #ffffff; padding: 20px 18px; display: flex;
+            justify-content: space-between; align-items: center;
+        }
+        .sidebar-header h3 { font-size: 16px; font-weight: bold; }
+        .close-btn { font-size: 22px; cursor: pointer; color: #cbd5e1; }
+
+        .sidebar-menu { list-style: none; padding: 15px 0; flex-grow: 1; overflow-y: auto; }
+        .sidebar-menu li a {
+            display: flex; align-items: center; gap: 14px;
+            padding: 12px 20px; font-size: 14px; font-weight: 600;
+            color: #334155; text-decoration: none; transition: background 0.2s, color 0.2s;
+        }
+        .sidebar-menu li a:hover, .sidebar-menu li a.active {
+            background: #e0e7ff; color: #4338ca; border-left: 4px solid #4f46e5;
+        }
+        .sidebar-menu li a .icon { font-size: 18px; width: 24px; text-align: center; }
+
+        .sidebar-divider { height: 1px; background: #e2e8f0; margin: 10px 0; }
+
+        .container { padding: 15px; }
+
+        /* Card Container Styling */
+        .card {
+            background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0;
+            margin-bottom: 15px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+        .card-header {
+            background: #1e1b4b; color: white; padding: 12px 15px;
+            font-size: 13px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;
+        }
+        .card-body { padding: 15px; }
+
+        /* Form Inputs & Grid */
+        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group.full-width { grid-column: span 2; }
+        .form-label { font-size: 11px; font-weight: bold; color: #475569; text-transform: uppercase; }
+        .form-control {
+            padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px;
+            font-size: 13px; color: #1e293b; background-color: #f8fafc;
+            outline: none; transition: border-color 0.2s;
+        }
+        .form-control:focus { border-color: #4f46e5; background-color: #ffffff; }
+
+        /* QR Section */
+        .qr-section { text-align: center; display: none; margin-top: 10px; padding-top: 15px; border-top: 1px dashed #cbd5e1; }
+        .qr-box {
+            background: #ffffff; padding: 15px; border-radius: 12px; display: inline-block;
+            border: 2px solid #e0e7ff; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin: 10px 0;
+        }
+        .qr-timer { font-size: 12px; font-weight: bold; color: #dc2626; margin-top: 5px; }
+
+        /* Primary Action Buttons */
+        .btn-primary {
+            width: 100%; background: #4f46e5; color: white; border: none;
+            padding: 12px; border-radius: 8px; font-size: 13px; font-weight: bold;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 3px 8px rgba(79, 70, 229, 0.3); transition: background 0.2s;
+        }
+        .btn-primary:active { background: #4338ca; }
+
+        .btn-secondary {
+            background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1;
+            padding: 8px 12px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;
+        }
+
+        /* Stats Grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
+        .stat-card { background: #ffffff; border-radius: 8px; padding: 10px 5px; text-align: center; border: 1px solid #e2e8f0; }
+        .stat-value { font-size: 16px; font-weight: bold; color: #1e1b4b; }
+        .stat-label { font-size: 9px; color: #64748b; font-weight: bold; margin-top: 2px; }
+
+        /* Search Bar & Quick Controls */
+        .control-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; }
+        .search-box { flex-grow: 1; }
+
+        /* Student List Table / Cards */
+        .student-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;
+            margin-bottom: 8px; background: #ffffff; transition: background 0.2s;
+        }
+        .student-left { display: flex; align-items: center; gap: 10px; }
+        .student-roll-badge {
+            background: #e0e7ff; color: #4338ca; font-size: 11px;
+            font-weight: bold; padding: 4px 8px; border-radius: 6px;
+        }
+        .student-name { font-size: 13px; font-weight: bold; color: #1e293b; }
+        .student-roll-no { font-size: 10px; color: #64748b; margin-top: 2px; }
+
+        /* Attendance Toggle Switch */
+        .toggle-btn {
+            padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: bold;
+            border: none; cursor: pointer; transition: all 0.2s;
+        }
+        .toggle-btn.present { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+        .toggle-btn.absent { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+
+        /* Submit Button */
+        .btn-success {
+            width: 100%; background: #16a34a; color: white; border: none;
+            padding: 14px; border-radius: 10px; font-size: 14px; font-weight: bold;
+            cursor: pointer; box-shadow: 0 4px 10px rgba(22, 163, 74, 0.3); margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <div class="navbar">
+        <div class="nav-left">
+            <span class="menu-btn" onclick="toggleSidebar()">☰</span>
+            <span class="nav-title">Attendance Generator</span>
+        </div>
+       <div class="notification-box" onclick="window.location.href='faculty_notification.html'">
+    🔔
+    <span class="notification-badge">3</span>
+       </div>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- Side Navigation Menu Drawer -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>Faculty Menu</h3>
+            <span class="close-btn" onclick="toggleSidebar()">✕</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="teacher_dashboard.html"><span class="icon">🏠</span> Dashboard</a></li>
+            <li><a href="attendance_generator.html" class="active"><span class="icon">⚡</span> Attendance Generator</a></li>
+            <li><a href="leave_management.html"><span class="icon">📩</span> Leave management System</a></li>
+
+           <li><a href="reports_analytics.html"><span class="icon">📊</span> Reports & Analytics</a></li>
+
+            <li><a href="faculty_notification.html"><span class="icon">🔔</span> Notification</a></li>
+
+           <li><a href="faculty_settings.html"><span class="icon">⚙️</span> Setting</a></li>
+
+            <div class="sidebar-divider"></div>
+            <li><a href="login.html" style="color: #ef4444;"><span class="icon">🚪</span> Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="container">
+
+        <!-- Step 1: Class & Lecture Selection Card -->
+        <div class="card">
+            <div class="card-header">
+                <span>📚 Select Class & Lecture Details</span>
+                <span style="font-size: 11px; opacity: 0.8;">Step 1 of 2</span>
+            </div>
+            <div class="card-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Course</label>
+                        <select class="form-control" id="courseSelect">
+                            <option value="BCA">BCA</option>
+                            <option value="B.Tech CS">B.Tech CS</option>
+                            <option value="MCA">MCA</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Semester</label>
+                        <select class="form-control" id="semSelect">
+                            <option value="5th Sem">5th Semester</option>
+                            <option value="3rd Sem">3rd Semester</option>
+                            <option value="1st Sem">1st Semester</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="form-label">Subject</label>
+                        <select class="form-control" id="subjectSelect">
+                            <option value="CS-501">CS-501: Web Technology & Java</option>
+                            <option value="CS-502">CS-502: Operating Systems</option>
+                            <option value="CS-503">CS-503: Database Management Systems</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-control" id="attDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Session Slot</label>
+                        <select class="form-control">
+                            <option>09:30 AM - 10:20 AM</option>
+                            <option>11:30 AM - 01:10 PM</option>
+                            <option>02:00 PM - 02:50 PM</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="margin-top: 15px; display: flex; gap: 10px;">
+                    <button class="btn-primary" onclick="generateQRCode()">
+                        📷 Generate Live QR Code
+                    </button>
+                </div>
+
+                <!-- Dynamic QR Code Container -->
+                <div class="qr-section" id="qrSection">
+                    <p style="font-size: 12px; font-weight: bold; color: #1e1b4b;">Students QR Code Scan Karke Attendance Laga Sakte Hain</p>
+                    <div class="qr-box">
+                        <div id="qrcode"></div>
+                    </div>
+                    <div class="qr-timer">⏱️ QR Code Expires in: <span id="timer">60</span>s</div>
+                    <button class="btn-secondary" style="margin-top: 8px;" onclick="refreshQR()">🔄 Refresh QR Code</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Attendance Metrics Summary -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalCount">5</div>
+                <div class="stat-label">TOTAL</div>
+            </div>
+            <div class="stat-card" style="border-bottom: 3px solid #16a34a;">
+                <div class="stat-value" style="color: #16a34a;" id="presentCount">5</div>
+                <div class="stat-label">PRESENT</div>
+            </div>
+            <div class="stat-card" style="border-bottom: 3px solid #dc2626;">
+                <div class="stat-value" style="color: #dc2626;" id="absentCount">0</div>
+                <div class="stat-label">ABSENT</div>
+            </div>
+            <div class="stat-card" style="border-bottom: 3px solid #2563eb;">
+                <div class="stat-value" style="color: #2563eb;" id="percentVal">100%</div>
+                <div class="stat-label">PERCENT</div>
+            </div>
+        </div>
+
+        <!-- Step 2: Student Roster & Manual Override Card -->
+        <div class="card">
+            <div class="card-header">
+                <span>👥 Student Attendance List</span>
+                <span style="font-size: 11px; opacity: 0.8;">Manual Entry / Override</span>
+            </div>
+            <div class="card-body">
+
+                <!-- Control Bar -->
+                <div class="control-bar">
+                    <input type="text" id="searchInput" class="form-control search-box" placeholder="🔍 Search student name / roll..." onkeyup="filterStudents()">
+                    <button class="btn-secondary" onclick="markAll(true)">All Present</button>
+                    <button class="btn-secondary" onclick="markAll(false)">All Absent</button>
+                </div>
+
+                <!-- Student Dynamic List -->
+                <div id="studentListContainer">
+                    <!-- Dynamic rendering via JS -->
+                </div>
+
+                <!-- Final Submit Button -->
+                <button class="btn-success" onclick="submitAttendance()">
+                    💾 Submit & Save Attendance
+                </button>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Toggle Sidebar Drawer
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // Set Default Date to Today
+        document.getElementById('attDate').valueAsDate = new Date();
+
+        // Sample Student Data
+        let students = [
+            { id: 1, roll: "245201", name: "Aarav Sharma", status: true },
+            { id: 2, roll: "245202", name: "Aditya Verma", status: true },
+            { id: 3, roll: "245203", name: "Ananya Gupta", status: true },
+            { id: 4, roll: "245204", name: "Bhavya Joshi", status: true },
+            { id: 5, roll: "245205", name: "Deepak Kumar", status: true }
+        ];
+
+        let qrTimerInterval = null;
+
+        // Initial Render
+        renderStudents();
+
+        // Render Student List UI
+        function renderStudents() {
+            const container = document.getElementById('studentListContainer');
+            container.innerHTML = "";
+
+            students.forEach((stu, index) => {
+                const item = document.createElement('div');
+                item.className = 'student-item';
+                item.innerHTML = `
+                    <div class="student-left">
+                        <span class="student-roll-badge">#${index + 1}</span>
+                        <div>
+                            <div class="student-name">${stu.name}</div>
+                            <div class="student-roll-no">Roll No: ${stu.roll}</div>
+                        </div>
+                    </div>
+                    <button class="toggle-btn ${stu.status ? 'present' : 'absent'}" onclick="toggleStatus(${stu.id})">
+                        ${stu.status ? '✓ Present' : '✕ Absent'}
+                    </button>
+                `;
+                container.appendChild(item);
+            });
+
+            updateStats();
+        }
+
+        // Toggle Single Student Status
+        function toggleStatus(id) {
+            const stu = students.find(s => s.id === id);
+            if (stu) {
+                stu.status = !stu.status;
+                renderStudents();
+            }
+        }
+
+        // Mark All Present / Absent
+        function markAll(isPresent) {
+            students.forEach(s => s.status = isPresent);
+            renderStudents();
+        }
+
+        // Search Filter
+        function filterStudents() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const items = document.querySelectorAll('.student-item');
+            
+            students.forEach((stu, index) => {
+                const match = stu.name.toLowerCase().includes(query) || stu.roll.includes(query);
+                if (items[index]) {
+                    items[index].style.display = match ? 'flex' : 'none';
+                }
+            });
+        }
+
+        // Calculate Real-time Stats
+        function updateStats() {
+            const total = students.length;
+            const present = students.filter(s => s.status).length;
+            const absent = total - present;
+            const percent = total > 0 ? Math.round((present / total) * 100) : 0;
+
+            document.getElementById('totalCount').innerText = total;
+            document.getElementById('presentCount').innerText = present;
+            document.getElementById('absentCount').innerText = absent;
+            document.getElementById('percentVal').innerText = percent + "%";
+        }
+
+        // Generate Live QR Code
+        function generateQRCode() {
+            const qrSection = document.getElementById('qrSection');
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = ""; // Clear previous QR
+
+            const subject = document.getElementById('subjectSelect').value;
+            const randomToken = Math.floor(100000 + Math.random() * 900000);
+            const qrData = `ERP_ATTENDANCE_${subject}_${randomToken}`;
+
+            new QRCode(qrContainer, {
+                text: qrData,
+                width: 140,
+                height: 140
+            });
+
+            qrSection.style.display = 'block';
+            startTimer();
+        }
+
+        // QR Code Expiry Countdown Timer
+        function startTimer() {
+            clearInterval(qrTimerInterval);
+            let timeLeft = 60;
+            document.getElementById('timer').innerText = timeLeft;
+
+            qrTimerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(qrTimerInterval);
+                    alert("QR Code expired! Kripya refresh karein.");
+                }
+            }, 1000);
+        }
+
+        function refreshQR() {
+            generateQRCode();
+        }
+
+        // Save / Submit Attendance
+        function submitAttendance() {
+            const course = document.getElementById('courseSelect').value;
+            const subject = document.getElementById('subjectSelect').value;
+            const date = document.getElementById('attDate').value;
+            const present = students.filter(s => s.status).length;
+            const total = students.length;
+
+            if(!date) {
+                alert("Kripya Attendance ki Date select karein!");
+                return;
+            }
+
+            alert(`✅ Attendance Successfully Saved!\n\nCourse: ${course}\nSubject: ${subject}\nDate: ${date}\nPresent: ${present} / ${total}`);
+        }
+    </script>
+</body>
+</html>
