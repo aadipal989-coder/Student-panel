@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports & Compliance - College ERP Admin</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f4f6f9; color: #333; padding-bottom: 40px; }
+
+        /* Top Navbar */
+        .navbar {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff; padding: 14px 18px; display: flex;
+            justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .nav-left { display: flex; align-items: center; gap: 12px; }
+        .menu-btn { font-size: 22px; cursor: pointer; color: #ffffff; line-height: 1; user-select: none; }
+        .nav-title { font-size: 17px; font-weight: bold; letter-spacing: 0.5px; }
+        .notification-box { position: relative; cursor: pointer; font-size: 20px; }
+        .notification-badge {
+            position: absolute; top: -3px; right: -5px;
+            background: #ef4444; color: white; font-size: 9px;
+            font-weight: bold; padding: 2px 5px; border-radius: 50%;
+            border: 1px solid #0f172a;
+        }
+
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px);
+            display: none; z-index: 200; opacity: 0; transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.active { display: block; opacity: 1; }
+
+        /* Sidebar Navigation Drawer */
+        .sidebar {
+            position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
+            background: #ffffff; z-index: 201; transition: left 0.3s ease;
+            display: flex; flex-direction: column; box-shadow: 4px 0 15px rgba(0,0,0,0.2);
+        }
+        .sidebar.active { left: 0; }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff; padding: 20px 18px; display: flex;
+            justify-content: space-between; align-items: center;
+        }
+        .sidebar-header h3 { font-size: 16px; font-weight: bold; }
+        .close-btn { font-size: 22px; cursor: pointer; color: #cbd5e1; }
+
+        .sidebar-menu { list-style: none; padding: 15px 0; flex-grow: 1; overflow-y: auto; }
+        .sidebar-menu li a {
+            display: flex; align-items: center; gap: 14px;
+            padding: 12px 20px; font-size: 13.5px; font-weight: 600;
+            color: #334155; text-decoration: none; transition: background 0.2s, color 0.2s;
+        }
+        .sidebar-menu li a:hover, .sidebar-menu li a.active {
+            background: #f1f5f9; color: #0f172a; border-left: 4px solid #2563eb;
+        }
+        .sidebar-menu li a .icon { font-size: 18px; width: 24px; text-align: center; }
+
+        .sidebar-divider { height: 1px; background: #e2e8f0; margin: 10px 0; }
+
+        .container { padding: 15px; }
+
+        /* Navigation Tabs */
+        .tab-container {
+            display: flex; background: #e2e8f0; border-radius: 10px;
+            padding: 4px; margin-bottom: 15px; gap: 4px;
+        }
+        .tab-btn {
+            flex: 1; padding: 10px; border: none; border-radius: 8px;
+            font-size: 12px; font-weight: bold; color: #64748b;
+            background: transparent; cursor: pointer; transition: all 0.2s;
+        }
+        .tab-btn.active { background: #ffffff; color: #0f172a; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
+
+        /* Card Container */
+        .card {
+            background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0;
+            margin-bottom: 15px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        }
+        .card-header {
+            background: #f8fafc; padding: 12px 15px; border-bottom: 1px solid #e2e8f0;
+            font-size: 13.5px; font-weight: bold; color: #0f172a; display: flex;
+            justify-content: space-between; align-items: center;
+        }
+        .card-body { padding: 15px; }
+
+        /* Summary Metric Cards */
+        .metrics-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
+        .metric-card {
+            background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px;
+            padding: 12px; text-align: center;
+        }
+        .metric-value { font-size: 20px; font-weight: bold; color: #0f172a; margin-top: 4px; }
+        .metric-title { font-size: 11px; color: #64748b; font-weight: 600; }
+
+        /* Form Group Grid */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 12px; }
+        .form-group { margin-bottom: 8px; }
+        .form-group label { display: block; font-size: 11px; font-weight: bold; color: #475569; margin-bottom: 4px; }
+        .form-group select, .form-group input {
+            width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; outline: none;
+        }
+
+        .btn-action {
+            width: 100%; background: #2563eb; color: white; border: none; padding: 10px;
+            border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer;
+            display: flex; justify-content: center; align-items: center; gap: 6px;
+        }
+
+        /* Defaulter Alert Header */
+        .alert-banner {
+            background: #fef2f2; border: 1px solid #fecaca; color: #991b1b;
+            padding: 10px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
+        }
+        .btn-notify-all {
+            background: #dc2626; color: white; border: none; padding: 6px 12px;
+            border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;
+        }
+
+        /* Table Design */
+        .custom-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; }
+        .custom-table th { background: #f1f5f9; padding: 10px; color: #475569; font-weight: 700; border-bottom: 1px solid #cbd5e1; }
+        .custom-table td { padding: 10px; border-bottom: 1px solid #e2e8f0; color: #1e293b; }
+
+        .badge-defaulter { background: #fee2e2; color: #991b1b; font-weight: bold; padding: 3px 8px; border-radius: 12px; font-size: 10px; }
+        .badge-safe { background: #dcfce7; color: #166534; font-weight: bold; padding: 3px 8px; border-radius: 12px; font-size: 10px; }
+
+        .btn-send-msg {
+            background: #0284c7; color: white; border: none; padding: 4px 8px;
+            border-radius: 4px; font-size: 10px; font-weight: bold; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <div class="navbar">
+    <div class="nav-left">
+        <span class="menu-btn" onclick="toggleSidebar()">☰</span>
+        <span class="nav-title">Report & Compliance</span>
+    </div>
+    <!-- Bell Icon Click Event -->
+    <div class="notification-box" onclick="window.location.href='admin_notification.html'">
+        🔔
+        <span class="notification-badge">5</span>
+    </div>
+</div>
+
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar Navigation Drawer -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>Admin Portal</h3>
+            <span class="close-btn" onclick="toggleSidebar()">✕</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="admin_dashboard.html"><span class="icon">📊</span> Master Dashboard</a></li>
+            <li><a href="user_management.html"><span class="icon">👥</span> User Management</a></li>
+            <li><a href="academic_setup.html"><span class="icon">🎓</span> Academic Setup</a></li>
+            <li><a href="bus_transport.html"><span class="icon">🚌</span> Bus & Transport</a></li>
+            <li><a href="reports_compliance.html" class="active"><span class="icon">📈</span> Reports & Compliance</a></li>
+          <li><a href="fee_management.html"><span class="icon">💳</span> Fee Management</a></li> 
+          <li><a href="admin_notification.html"><span class="icon">🔔</span> Notification</a></li>
+            <li><a href="admin_settings.html"><span class="icon">⚙️</span> Setting</a></li>
+            <div class="sidebar-divider"></div>
+            <li><a href="login.html" style="color: #ef4444;"><span class="icon">🚪</span> Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="container">
+
+        <!-- Top Navigation Tabs -->
+        <div class="tab-container">
+            <button class="tab-btn active" onclick="switchTab('defaulterTab', this)">⚠️ Defaulters (&lt;75%)</button>
+            <button class="tab-btn" onclick="switchTab('reportsTab', this)">📊 Export Reports</button>
+            <button class="tab-btn" onclick="switchTab('auditTab', this)">📜 Audit & Rules</button>
+        </div>
+
+        <!-- Metric Summary -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-title">Avg College Attendance</div>
+                <div class="metric-value" style="color: #16a34a;">84.2%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">Total Defaulters</div>
+                <div class="metric-value" style="color: #dc2626;">48 Students</div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 1: SYSTEM DEFAULTER LIST (<75%) ================= -->
+        <div id="defaulterTab">
+            <div class="alert-banner">
+                <span>⚠️ <b>48 Students</b> have attendance below 75% policy limit.</span>
+                <button class="btn-notify-all" onclick="sendWarningAll()">📨 Notify All (SMS/Email)</button>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span>📋 Defaulter List (Below 75%)</span>
+                    <span style="font-size:11px; color:#64748b;">Filter: All Branches</span>
+                </div>
+                <div class="card-body" style="padding: 0; overflow-x: auto;">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Roll No & Branch</th>
+                                <th>Attendance %</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><b>Vikas Verma</b></td>
+                                <td>245210 (BCA 5th)</td>
+                                <td><span class="badge-defaulter">68.5%</span></td>
+                                <td><button class="btn-send-msg" onclick="sendSingleNotice('Vikas Verma')">📩 Send Warning</button></td>
+                            </tr>
+                            <tr>
+                                <td><b>Neha Singh</b></td>
+                                <td>245218 (BCA 5th)</td>
+                                <td><span class="badge-defaulter">71.0%</span></td>
+                                <td><button class="btn-send-msg" onclick="sendSingleNotice('Neha Singh')">📩 Send Warning</button></td>
+                            </tr>
+                            <tr>
+                                <td><b>Rohan Gupta</b></td>
+                                <td>210109 (BBA 3rd)</td>
+                                <td><span class="badge-defaulter">62.0%</span></td>
+                                <td><button class="btn-send-msg" onclick="sendSingleNotice('Rohan Gupta')">📩 Send Warning</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 2: GENERATE ATTENDANCE REPORTS ================= -->
+        <div id="reportsTab" style="display: none;">
+            <div class="card">
+                <div class="card-header">
+                    <span>📄 Generate Custom Attendance Reports</span>
+                </div>
+                <div class="card-body">
+                    <form onsubmit="generateReport(event)">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Report Duration</label>
+                                <select id="reportType">
+                                    <option value="Monthly">Monthly Report</option>
+                                    <option value="Semester-wise">Semester-wise Report</option>
+                                    <option value="Annual">Annual (Full Session)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Branch / Course</label>
+                                <select>
+                                    <option>All Branches</option>
+                                    <option>BCA</option>
+                                    <option>BBA</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Semester</label>
+                                <select>
+                                    <option>All Semesters</option>
+                                    <option>Sem 1</option>
+                                    <option>Sem 3</option>
+                                    <option>Sem 5</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Export Format</label>
+                                <select>
+                                    <option>PDF Document (.pdf)</option>
+                                    <option>Excel Sheet (.xlsx)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-action">📥 Download Generated Report</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 3: AUDIT & COMPLIANCE RULES ================= -->
+        <div id="auditTab" style="display: none;">
+            <div class="card">
+                <div class="card-header">
+                    <span>📜 University Compliance Settings</span>
+                </div>
+                <div class="card-body">
+                    <div style="font-size: 12px; color: #475569; line-height: 1.6;">
+                        <p style="margin-bottom: 10px;"><b>1. Minimum Attendance Requirement:</b> Set to <b>75%</b> as per UGC/University regulation.</p>
+                        <p style="margin-bottom: 10px;"><b>2. Automated Defaulter Warning:</b> Sent automatically when attendance drops below 75% at the end of every month.</p>
+                        <p style="margin-bottom: 10px;"><b>3. Admit Card Hold Policy:</b> Students below 75% attendance are automatically flagged for Exam Hall Ticket hold.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JavaScript Functions -->
+    <script>
+        // Toggle Sidebar Drawer
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // Switch Tabs
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const tabs = ['defaulterTab', 'reportsTab', 'auditTab'];
+            tabs.forEach(id => {
+                document.getElementById(id).style.display = (id === tabId) ? 'block' : 'none';
+            });
+        }
+
+        // Send Warnings
+        function sendWarningAll() {
+            if(confirm("Kya aap sabhi 48 defaulter students aur unke parents ko SMS/Email Warning Notice bhejana chahte hain?")) {
+                alert("✅ Warning SMS & Email successfully sent to 48 defaulter students!");
+            }
+        }
+
+        function sendSingleNotice(studentName) {
+            alert("✅ Defaulter Warning Notice sent to " + studentName + " via Portal & Email!");
+        }
+
+        // Generate Report Handler
+        function generateReport(e) {
+            e.preventDefault();
+            const type = document.getElementById('reportType').value;
+            alert("📥 " + type + " Attendance Report generated & downloaded successfully!");
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusFlow - Next-Gen Campus ERP & Management System</title>
+  <!-- Google Fonts & Lucide Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Slow & Smooth Floating Animation */
+    .reveal {
+      opacity: 0;
+      transform: translateY(60px);
+      transition: opacity 1.4s cubic-bezier(0.2, 0.8, 0.2, 1), 
+                  transform 1.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Navigation Bar */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 8%;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    .brand-name {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-name span {
+      color: #60a5fa;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: #94a3b8;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: color 0.2s ease;
+    }
+
+    .nav-links a:hover {
+      color: #ffffff;
+    }
+
+    .login-btn {
+      padding: 10px 20px;
+      background: #2563eb;
+      color: #ffffff;
+      text-decoration: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .login-btn:hover {
+      background: #1d4ed8;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 160px 8% 100px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      background: radial-gradient(circle at 50% 20%, rgba(37, 99, 235, 0.15) 0%, transparent 60%);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: rgba(37, 99, 235, 0.1);
+      border: 1px solid rgba(37, 99, 235, 0.3);
+      border-radius: 30px;
+      color: #60a5fa;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .hero-title {
+      font-size: 3.5rem;
+      font-weight: 800;
+      line-height: 1.15;
+      max-width: 850px;
+      color: #ffffff;
+      margin-bottom: 20px;
+      letter-spacing: -1px;
+    }
+
+    .hero-title span {
+      background: linear-gradient(135deg, #60a5fa, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 1.15rem;
+      color: #94a3b8;
+      max-width: 650px;
+      margin-bottom: 36px;
+    }
+
+    .cta-group {
+      display: flex;
+      gap: 16px;
+    }
+
+    .primary-cta {
+      padding: 14px 28px;
+      background-color: #2563eb;
+      color: #ffffff;
+      text-decoration: none;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background-color 0.2s ease;
+    }
+
+    .primary-cta:hover {
+      background-color: #1d4ed8;
+    }
+
+    .secondary-cta {
+      padding: 14px 28px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      text-decoration: none;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1rem;
+      transition: background-color 0.2s ease;
+    }
+
+    /* Features Section */
+    .features-section {
+      padding: 80px 8%;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .section-header h2 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 12px;
+    }
+
+    .section-header p {
+      color: #94a3b8;
+      font-size: 1rem;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 32px 24px;
+      cursor: pointer;
+      transition: transform 0.4s ease, border-color 0.4s ease, background 0.4s ease;
+      position: relative;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      border-color: rgba(37, 99, 235, 0.5);
+      background: rgba(30, 41, 59, 0.85);
+      box-shadow: 0 10px 30px rgba(37, 99, 235, 0.15);
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(37, 99, 235, 0.15);
+      color: #60a5fa;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .feature-card h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 10px;
+    }
+
+    .feature-card p {
+      font-size: 0.9rem;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+
+    .click-hint {
+      margin-top: 16px;
+      font-size: 0.8rem;
+      color: #60a5fa;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Modal Popup Styling */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      padding: 20px;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-card {
+      background: #1e293b;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 20px;
+      max-width: 500px;
+      width: 100%;
+      padding: 32px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      transform: scale(0.9);
+      transition: transform 0.3s ease;
+      position: relative;
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: scale(1);
+    }
+
+    .modal-close-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.08);
+      border: none;
+      color: #94a3b8;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .modal-close-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .modal-icon {
+      width: 52px;
+      height: 52px;
+      background: rgba(37, 99, 235, 0.2);
+      color: #60a5fa;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .modal-desc {
+      color: #cbd5e1;
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .modal-highlights {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .modal-highlights li {
+      font-size: 0.88rem;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-highlights li i {
+      color: #38bdf8;
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Footer */
+    footer {
+      padding: 40px 8%;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #64748b;
+      font-size: 0.88rem;
+    }
+
+    @media (max-width: 768px) {
+      .navbar { padding: 16px 5%; }
+      .nav-links { display: none; }
+      .hero-title { font-size: 2.2rem; }
+      .cta-group { flex-direction: column; width: 100%; }
+      footer { flex-direction: column; gap: 16px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <a href="home.html" class="brand-logo">
+      <div class="logo-icon">
+        <i data-lucide="layers" style="width: 24px; height: 24px; color: #ffffff;"></i>
+      </div>
+      <div class="brand-name">Campus<span>Flow</span></div>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="login.html">Portal Login</a></li>
+    </ul>
+
+    <a href="login.html" class="login-btn">
+      <span>Portal Login</span>
+      <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+    </a>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero reveal">
+    <div class="badge">
+      <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i>
+      Smart Academic Ecosystem
+    </div>
+
+    <h1 class="hero-title">
+      Unified ERP Platform for <span>Modern Educational Campuses</span>
+    </h1>
+
+    <p class="hero-subtitle">
+      CampusFlow seamlessly connects Students, Faculty, and Administration with live attendance tracking, fleet management, and automated academic operations.
+    </p>
+
+    <div class="cta-group">
+      <a href="login.html" class="primary-cta">
+        <span>Access Campus Portal</span>
+        <i data-lucide="shield-check" style="width: 18px; height: 18px;"></i>
+      </a>
+      <a href="#features" class="secondary-cta">Explore Features</a>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features-section" id="features">
+    <div class="section-header reveal">
+      <h2>Powering Next-Gen Education</h2>
+      <p>Click on any feature below to view detailed capabilities.</p>
+    </div>
+
+    <div class="features-grid">
+      <!-- Feature 1 -->
+      <div class="feature-card reveal" onclick="openModal('attendance')">
+        <div class="feature-icon">
+          <i data-lucide="user-check" style="width: 24px; height: 24px;"></i>
+        </div>
+        <h3>Smart Attendance</h3>
+        <p>Instant attendance tracking for lectures and practical sessions with automated percentage calculations.</p>
+        <div class="click-hint">View details <i data-lucide="chevron-right" style="width: 14px; height: 14px;"></i></div>
+      </div>
+
+      <!-- Feature 2 -->
+      <div class="feature-card reveal" onclick="openModal('bus')">
+        <div class="feature-icon">
+          <i data-lucide="bus" style="width: 24px; height: 24px;"></i>
+        </div>
+        <h3>Live Bus Tracking</h3>
+        <p>Real-time location updates for campus transport buses ensuring safe and punctual commutes.</p>
+        <div class="click-hint">View details <i data-lucide="chevron-right" style="width: 14px; height: 14px;"></i></div>
+      </div>
+
+      <!-- Feature 3 -->
+      <div class="feature-card reveal" onclick="openModal('fees')">
+        <div class="feature-icon">
+          <i data-lucide="credit-card" style="width: 24px; height: 24px;"></i>
+        </div>
+        <h3>Fee Portal</h3>
+        <p>Automated tuition fee tracking, payment receipts, and penalty reminders in one place.</p>
+        <div class="click-hint">View details <i data-lucide="chevron-right" style="width: 14px; height: 14px;"></i></div>
+      </div>
+
+      <!-- Feature 4 -->
+      <div class="feature-card reveal" onclick="openModal('leave')">
+        <div class="feature-icon">
+          <i data-lucide="file-text" style="width: 24px; height: 24px;"></i>
+        </div>
+        <h3>Leave Management</h3>
+        <p>Digital leave applications for students and teachers with fast 1-click admin approvals.</p>
+        <div class="click-hint">View details <i data-lucide="chevron-right" style="width: 14px; height: 14px;"></i></div>
+      </div>
+
+      <!-- Feature 5 -->
+      <div class="feature-card reveal" onclick="openModal('timetable')">
+        <div class="feature-icon">
+          <i data-lucide="calendar" style="width: 24px; height: 24px;"></i>
+        </div>
+        <h3>Timetable & Exams</h3>
+        <p>Dynamic schedules and seating plan notifications sent directly to user dashboards.</p>
+        <div class="click-hint">View details <i data-lucide="chevron-right" style="width: 14px; height: 14px;"></i></div>
+      </div>
+
+      <!-- Feature 6 -->
+      <div class="feature-card reveal" onclick="openModal('roles')">
+        <div class="feature-icon">
+          <i data-lucide="shield-alert" style="width: 24px; height: 24px;"></i>
+        </div>
+        <h3>Role-Based Access</h3>
+        <p>Isolated workspace portals for Students, Teachers, and System Admins with high security.</p>
+        <div class="click-hint">View details <i data-lucide="chevron-right" style="width: 14px; height: 14px;"></i></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature Information Modal Popup -->
+  <div class="modal-overlay" id="featureModal" onclick="closeModalOnOverlay(event)">
+    <div class="modal-card">
+      <button class="modal-close-btn" onclick="closeModal()">
+        <i data-lucide="x" style="width: 18px; height: 18px;"></i>
+      </button>
+
+      <div class="modal-header">
+        <div class="modal-icon" id="mIcon">
+          <i data-lucide="info" style="width: 28px; height: 28px;"></i>
+        </div>
+        <div class="modal-title" id="mTitle">Feature Title</div>
+      </div>
+
+      <p class="modal-desc" id="mDesc">Feature Description details go here...</p>
+
+      <ul class="modal-highlights" id="mList">
+        <!-- Highlights populated via JS -->
+      </ul>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="reveal">
+    <div>&copy; CampusFlow ERP Platform. All rights reserved.</div>
+    <div>Designed for Educational Institutions.</div>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+
+    // Scroll Animation Observer
+    function revealOnScroll() {
+      const reveals = document.querySelectorAll('.reveal');
+      for (let i = 0; i < reveals.length; i++) {
+        const windowHeight = window.innerHeight;
+        const elementTop = reveals[i].getBoundingClientRect().top;
+        const elementVisible = 80;
+
+        if (elementTop < windowHeight - elementVisible) {
+          reveals[i].classList.add('active');
+        }
+      }
+    }
+
+    window.addEventListener('scroll', revealOnScroll);
+    window.addEventListener('load', revealOnScroll);
+
+    // Data Store for Modal Popup Content
+    const featureData = {
+      attendance: {
+        title: "Smart Attendance System",
+        icon: "user-check",
+        desc: "Automates the entire roll-call process for lectures, labs, and sports sessions. Reduces manual paperwork for faculty members.",
+        highlights: [
+          "Real-time percentage calculator for 75% eligibility criteria.",
+          "Automatic SMS / Portal alerts for low attendance.",
+          "Faculty can mark bulk attendance in under 30 seconds."
+        ]
+      },
+      bus: {
+        title: "Live Campus Transport GPS",
+        icon: "bus",
+        desc: "Provides live bus tracking so students and staff never miss their pickup timing or wait unnecessarily at bus stops.",
+        highlights: [
+          "Live map view with real-time bus speed and location.",
+          "Estimated Time of Arrival (ETA) alerts for each stop.",
+          "Driver contact details and emergency SOS button."
+        ]
+      },
+      fees: {
+        title: "Digital Fee Portal",
+        icon: "credit-card",
+        desc: "A completely transparent online fee management system to eliminate long queues at the accounts office.",
+        highlights: [
+          "Instant digital receipt generation after payment.",
+          "Semester-wise fee breakdown (Tuition, Hostel, Bus).",
+          "Automated email and portal payment reminders."
+        ]
+      },
+      leave: {
+        title: "Digital Leave Requests",
+        icon: "file-text",
+        desc: "Enables students and faculty members to apply for medical or casual leave digitally without physical forms.",
+        highlights: [
+          "Document attachment option (Medical certificates).",
+          "1-Click approve/reject interface for HOD & Admin.",
+          "Automatic attendance exclusion for approved leaves."
+        ]
+      },
+      timetable: {
+        title: "Timetable & Exam Portal",
+        icon: "calendar",
+        desc: "Keeps students informed about weekly lecture schedules, lab swaps, mid-term tests, and semester exam dates.",
+        highlights: [
+          "Instant alerts for class cancellations or faculty substitutions.",
+          "Downloadable exam seating plans and hall tickets.",
+          "Personalized weekly schedule calendar."
+        ]
+      },
+      roles: {
+        title: "Role-Based Access Control",
+        icon: "shield-alert",
+        desc: "High-grade security architecture ensuring data privacy between Students, Faculty, and System Administrators.",
+        highlights: [
+          "Isolated workspaces for Student, Teacher, and Admin.",
+          "Encrypted Access Code and password verification.",
+          "Detailed activity logs to prevent unauthorized access."
+        ]
+      }
+    };
+
+    function openModal(key) {
+      const data = featureData[key];
+      if (!data) return;
+
+      document.getElementById('mTitle').innerText = data.title;
+      document.getElementById('mDesc').innerText = data.desc;
+      
+      const iconContainer = document.getElementById('mIcon');
+      iconContainer.innerHTML = `<i data-lucide="${data.icon}" style="width: 28px; height: 28px;"></i>`;
+
+      const listContainer = document.getElementById('mList');
+      listContainer.innerHTML = data.highlights.map(item => `
+        <li><i data-lucide="check-circle-2"></i> ${item}</li>
+      `).join('');
+
+      lucide.createIcons();
+
+      document.getElementById('featureModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('featureModal').classList.remove('active');
+    }
+
+    function closeModalOnOverlay(event) {
+      if (event.target.id === 'featureModal') {
+        closeModal();
+      }
+    }
+  </script>
+</body>
+</html>

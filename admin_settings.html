@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Settings - College ERP Admin</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f4f6f9; color: #333; padding-bottom: 40px; }
+
+        /* Top Navbar */
+        .navbar {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff; padding: 14px 18px; display: flex;
+            justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .nav-left { display: flex; align-items: center; gap: 12px; }
+        .menu-btn { font-size: 22px; cursor: pointer; color: #ffffff; line-height: 1; user-select: none; }
+        .nav-title { font-size: 17px; font-weight: bold; letter-spacing: 0.5px; }
+        .notification-box { position: relative; cursor: pointer; font-size: 20px; }
+        .notification-badge {
+            position: absolute; top: -3px; right: -5px;
+            background: #ef4444; color: white; font-size: 9px;
+            font-weight: bold; padding: 2px 5px; border-radius: 50%;
+            border: 1px solid #0f172a;
+        }
+
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px);
+            display: none; z-index: 200; opacity: 0; transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.active { display: block; opacity: 1; }
+
+        /* Sidebar Navigation Drawer */
+        .sidebar {
+            position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
+            background: #ffffff; z-index: 201; transition: left 0.3s ease;
+            display: flex; flex-direction: column; box-shadow: 4px 0 15px rgba(0,0,0,0.2);
+        }
+        .sidebar.active { left: 0; }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff; padding: 20px 18px; display: flex;
+            justify-content: space-between; align-items: center;
+        }
+        .sidebar-header h3 { font-size: 16px; font-weight: bold; }
+        .close-btn { font-size: 22px; cursor: pointer; color: #cbd5e1; }
+
+        .sidebar-menu { list-style: none; padding: 15px 0; flex-grow: 1; overflow-y: auto; }
+        .sidebar-menu li a {
+            display: flex; align-items: center; gap: 14px;
+            padding: 12px 20px; font-size: 13.5px; font-weight: 600;
+            color: #334155; text-decoration: none; transition: background 0.2s, color 0.2s;
+        }
+        .sidebar-menu li a:hover, .sidebar-menu li a.active {
+            background: #f1f5f9; color: #0f172a; border-left: 4px solid #2563eb;
+        }
+        .sidebar-menu li a .icon { font-size: 18px; width: 24px; text-align: center; }
+
+        .sidebar-divider { height: 1px; background: #e2e8f0; margin: 10px 0; }
+
+        .container { padding: 15px; }
+
+        /* Navigation Tabs */
+        .tab-container {
+            display: flex; background: #e2e8f0; border-radius: 10px;
+            padding: 4px; margin-bottom: 15px; gap: 4px; overflow-x: auto;
+        }
+        .tab-btn {
+            flex: 1; padding: 10px; border: none; border-radius: 8px;
+            font-size: 12px; font-weight: bold; color: #64748b;
+            background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;
+        }
+        .tab-btn.active { background: #ffffff; color: #0f172a; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
+
+        /* Card Container */
+        .card {
+            background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0;
+            margin-bottom: 15px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        }
+        .card-header {
+            background: #f8fafc; padding: 12px 15px; border-bottom: 1px solid #e2e8f0;
+            font-size: 13.5px; font-weight: bold; color: #0f172a; display: flex;
+            justify-content: space-between; align-items: center;
+        }
+        .card-body { padding: 15px; }
+
+        /* Form Controls */
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 11px; font-weight: bold; color: #475569; margin-bottom: 4px; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 9px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; outline: none;
+        }
+
+        /* Toggle Switch Options */
+        .setting-toggle-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 0; border-bottom: 1px solid #f1f5f9;
+        }
+        .setting-info h4 { font-size: 12.5px; color: #0f172a; }
+        .setting-info p { font-size: 10.5px; color: #64748b; margin-top: 2px; }
+
+        /* Switch Style */
+        .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #cbd5e1; transition: .3s; border-radius: 22px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px;
+            background-color: white; transition: .3s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #2563eb; }
+        input:checked + .slider:before { transform: translateX(18px); }
+
+        .btn-save {
+            width: 100%; background: #2563eb; color: white; border: none; padding: 11px;
+            border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; margin-top: 10px;
+        }
+        .btn-danger { background: #dc2626; margin-top: 8px; }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <div class="navbar">
+        <div class="nav-left">
+            <span class="menu-btn" onclick="toggleSidebar()">☰</span>
+            <span class="nav-title">System Settings</span>
+        </div>
+        <div class="notification-box" onclick="window.location.href='admin_notification.html'">
+            🔔
+            <span class="notification-badge">5</span>
+        </div>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar Navigation Drawer -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>Admin Portal</h3>
+            <span class="close-btn" onclick="toggleSidebar()">✕</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="admin_dashboard.html"><span class="icon">📊</span> Master Dashboard</a></li>
+            <li><a href="user_management.html"><span class="icon">👥</span> User Management</a></li>
+            <li><a href="academic_setup.html"><span class="icon">🎓</span> Academic Setup</a></li>
+            <li><a href="bus_transport.html"><span class="icon">🚌</span> Bus & Transport</a></li>
+            <li><a href="reports_compliance.html"><span class="icon">📈</span> Reports & Compliance</a></li>
+          <li><a href="fee_management.html"><span class="icon">💳</span> Fee Management</a></li>
+
+            <li><a href="admin_notification.html"><span class="icon">🔔</span> Notification</a></li>
+            <li><a href="admin_settings.html" class="active"><span class="icon">⚙️</span> Setting</a></li>
+            <div class="sidebar-divider"></div>
+            <li><a href="login.html" style="color: #ef4444;"><span class="icon">🚪</span> Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="container">
+
+        <!-- Navigation Tabs -->
+        <div class="tab-container">
+            <button class="tab-btn active" onclick="switchTab('collegeTab', this)">🏛️ Profile</button>
+            <button class="tab-btn" onclick="switchTab('controlTab', this)">🎛️ Rules & Controls</button>
+            <button class="tab-btn" onclick="switchTab('backupTab', this)">💾 Backup & Logs</button>
+        </div>
+
+        <!-- ================= TAB 1: COLLEGE PROFILE & BRANDING ================= -->
+        <div id="collegeTab">
+            <div class="card">
+                <div class="card-header">
+                    <span>🏫 General Institution Details</span>
+                </div>
+                <div class="card-body">
+                    <form onsubmit="saveSettings(event, 'College Info')">
+                        <div class="form-group">
+                            <label>Institution Name</label>
+                            <input type="text" value="Apex Institute of Technology & Management" required>
+                        </div>
+                        <div class="form-group">
+                            <label>College Code / University Affiliation</label>
+                            <input type="text" value="AKTU Code: 108" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Admin Support Email</label>
+                            <input type="email" value="admin@apexinstitute.edu.in" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Helpline Phone Number</label>
+                            <input type="tel" value="+91 9876543210" required>
+                        </div>
+                        <button type="submit" class="btn-save">💾 Save Institution Profile</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 2: SYSTEM CONTROLS & RULES ================= -->
+        <div id="controlTab" style="display: none;">
+            <div class="card">
+                <div class="card-header">
+                    <span>🎛️ Automated Portal Rules</span>
+                </div>
+                <div class="card-body">
+                    
+                    <div class="setting-toggle-row">
+                        <div class="setting-info">
+                            <h4>Automatic Defaulter Notification</h4>
+                            <p>Send SMS/Email when attendance drops below 75%</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="setting-toggle-row">
+                        <div class="setting-info">
+                            <h4>Exam Admit Card Lock</h4>
+                            <p>Hold hall ticket for students with unpaid fee dues</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="setting-toggle-row">
+                        <div class="setting-info">
+                            <h4>Online Fee Payment Gateway</h4>
+                            <p>Allow students to pay semester fees online</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="setting-toggle-row">
+                        <div class="setting-info">
+                            <h4>Maintenance Mode</h4>
+                            <p>Temporarily restrict student/teacher portal logins</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <button class="btn-save" onclick="alert('✅ Portal rules updated!')">💾 Update Portal Rules</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 3: BACKUP & DATABASE ================= -->
+        <div id="backupTab" style="display: none;">
+            <div class="card">
+                <div class="card-header">
+                    <span>💾 System Data Backup & Security Log</span>
+                </div>
+                <div class="card-body">
+                    <p style="font-size: 11.5px; color: #475569; margin-bottom: 12px;">Last Backup Taken: <b>Yesterday at 11:59 PM</b></p>
+                    
+                    <button class="btn-save" onclick="alert('📥 Database Backup Download Started...')">📥 Download Full Database Backup (.SQL)</button>
+                    <button class="btn-save btn-danger" onclick="if(confirm('Clear current session log history?')) alert('✅ System logs cleared!')">🗑️ Clear System Audit Logs</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JavaScript Functions -->
+    <script>
+        // Toggle Sidebar Drawer
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // Switch Tabs
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const tabs = ['collegeTab', 'controlTab', 'backupTab'];
+            tabs.forEach(id => {
+                document.getElementById(id).style.display = (id === tabId) ? 'block' : 'none';
+            });
+        }
+
+        function saveSettings(e, section) {
+            e.preventDefault();
+            alert("✅ " + section + " saved successfully!");
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Setup - College ERP Admin</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f4f6f9; color: #333; padding-bottom: 40px; }
+
+        /* Top Navbar */
+        .navbar {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff; padding: 14px 18px; display: flex;
+            justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .nav-left { display: flex; align-items: center; gap: 12px; }
+        .menu-btn { font-size: 22px; cursor: pointer; color: #ffffff; line-height: 1; user-select: none; }
+        .nav-title { font-size: 17px; font-weight: bold; letter-spacing: 0.5px; }
+        .notification-box { position: relative; cursor: pointer; font-size: 20px; }
+        .notification-badge {
+            position: absolute; top: -3px; right: -5px;
+            background: #ef4444; color: white; font-size: 9px;
+            font-weight: bold; padding: 2px 5px; border-radius: 50%;
+            border: 1px solid #0f172a;
+        }
+
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px);
+            display: none; z-index: 200; opacity: 0; transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.active { display: block; opacity: 1; }
+
+        /* Sidebar Navigation Drawer */
+        .sidebar {
+            position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
+            background: #ffffff; z-index: 201; transition: left 0.3s ease;
+            display: flex; flex-direction: column; box-shadow: 4px 0 15px rgba(0,0,0,0.2);
+        }
+        .sidebar.active { left: 0; }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff; padding: 20px 18px; display: flex;
+            justify-content: space-between; align-items: center;
+        }
+        .sidebar-header h3 { font-size: 16px; font-weight: bold; }
+        .close-btn { font-size: 22px; cursor: pointer; color: #cbd5e1; }
+
+        .sidebar-menu { list-style: none; padding: 15px 0; flex-grow: 1; overflow-y: auto; }
+        .sidebar-menu li a {
+            display: flex; align-items: center; gap: 14px;
+            padding: 12px 20px; font-size: 13.5px; font-weight: 600;
+            color: #334155; text-decoration: none; transition: background 0.2s, color 0.2s;
+        }
+        .sidebar-menu li a:hover, .sidebar-menu li a.active {
+            background: #f1f5f9; color: #0f172a; border-left: 4px solid #2563eb;
+        }
+        .sidebar-menu li a .icon { font-size: 18px; width: 24px; text-align: center; }
+
+        .sidebar-divider { height: 1px; background: #e2e8f0; margin: 10px 0; }
+
+        .container { padding: 15px; }
+
+        /* Top Navigation Tabs */
+        .tab-container {
+            display: flex; background: #e2e8f0; border-radius: 10px;
+            padding: 4px; margin-bottom: 15px; gap: 4px; overflow-x: auto;
+        }
+        .tab-btn {
+            flex: 1; padding: 10px; border: none; border-radius: 8px;
+            font-size: 12px; font-weight: bold; color: #64748b;
+            background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;
+        }
+        .tab-btn.active { background: #ffffff; color: #0f172a; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
+
+        /* Actions Bar */
+        .action-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 15px; gap: 10px; flex-wrap: wrap;
+        }
+        .btn-add {
+            background: #2563eb; color: white; border: none; padding: 9px 14px;
+            border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer;
+            display: flex; align-items: center; gap: 6px;
+        }
+
+        /* Card Container */
+        .card {
+            background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0;
+            margin-bottom: 15px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        }
+        .card-header {
+            background: #f8fafc; padding: 12px 15px; border-bottom: 1px solid #e2e8f0;
+            font-size: 13.5px; font-weight: bold; color: #0f172a; display: flex;
+            justify-content: space-between; align-items: center;
+        }
+        .card-body { padding: 15px; }
+
+        /* Branch/Semester Item Styling */
+        .branch-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+        .branch-card {
+            background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 14px;
+        }
+        .branch-title { font-size: 14px; font-weight: bold; color: #0f172a; margin-bottom: 6px; display: flex; justify-content: space-between; }
+        .sem-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+        .sem-pill {
+            background: #ffffff; border: 1px solid #cbd5e1; color: #334155;
+            padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600;
+        }
+
+        /* Table Design */
+        .custom-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; }
+        .custom-table th { background: #f1f5f9; padding: 10px; color: #475569; font-weight: 700; border-bottom: 1px solid #cbd5e1; }
+        .custom-table td { padding: 10px; border-bottom: 1px solid #e2e8f0; color: #1e293b; }
+        .badge-tag { font-size: 10px; font-weight: bold; padding: 3px 6px; border-radius: 4px; }
+        .badge-theory { background: #dbeafe; color: #1e40af; }
+        .badge-lab { background: #fef3c7; color: #92400e; }
+
+        /* Timetable Grid Form */
+        .tt-filter { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
+        .tt-filter select { padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; outline: none; }
+
+        .time-slot-card {
+            background: #f8fafc; border-left: 4px solid #2563eb; border-radius: 6px;
+            padding: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .time-slot-info h4 { font-size: 13px; color: #0f172a; }
+        .time-slot-info p { font-size: 11px; color: #64748b; margin-top: 2px; }
+
+        /* Modal Overlay */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); display: none; justify-content: center;
+            align-items: center; z-index: 300; padding: 15px;
+        }
+        .modal-content {
+            background: #ffffff; width: 100%; max-width: 400px; border-radius: 12px;
+            padding: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .modal-header h3 { font-size: 15px; color: #0f172a; }
+        .form-group { margin-bottom: 10px; }
+        .form-group label { display: block; font-size: 11px; font-weight: bold; color: #475569; margin-bottom: 4px; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; outline: none;
+        }
+        .btn-submit {
+            width: 100%; background: #2563eb; color: white; border: none; padding: 10px;
+            border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <div class="navbar">
+    <div class="nav-left">
+        <span class="menu-btn" onclick="toggleSidebar()">☰</span>
+        <span class="nav-title">Academic Setup</span>
+    </div>
+    <!-- Bell Icon Click Event -->
+    <div class="notification-box" onclick="window.location.href='admin_notification.html'">
+        🔔
+        <span class="notification-badge">5</span>
+    </div>
+</div>
+
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar Navigation Drawer -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>Admin Portal</h3>
+            <span class="close-btn" onclick="toggleSidebar()">✕</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="admin_dashboard.html"><span class="icon">📊</span> Master Dashboard</a></li>
+            <li><a href="user_management.html"><span class="icon">👥</span> User Management</a></li>
+            <li><a href="academic_setup.html" class="active"><span class="icon">🎓</span> Academic Setup</a></li>
+            <li><a href="bus_transport.html"><span class="icon">🚌</span> Bus & Transport</a></li>
+            <li><a href="reports_compliance.html"><span class="icon">📈</span> Reports & Compliance</a></li>
+            <li><a href="fee_management.html"><span class="icon">💳</span> Fee Management</a></li>
+<li><a href="admin_notification.html"><span class="icon">🔔</span> Notification</a></li>
+            <li><a href="admin_settings.html"><span class="icon">⚙️</span> Setting</a></li>
+            <div class="sidebar-divider"></div>
+            <li><a href="login.html" style="color: #ef4444;"><span class="icon">🚪</span> Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="container">
+
+        <!-- Top Navigation Tabs -->
+        <div class="tab-container">
+            <button class="tab-btn active" onclick="switchTab('branchesTab', this)">🏢 Branches & Sems</button>
+            <button class="tab-btn" onclick="switchTab('subjectsTab', this)">📚 Subjects Master</button>
+            <button class="tab-btn" onclick="switchTab('timetableTab', this)">📅 Weekly Routine</button>
+            <button class="tab-btn" onclick="switchTab('calendarTab', this)">🗓️ Term Dates</button>
+        </div>
+
+        <!-- ================= TAB 1: BRANCHES & SEMESTERS ================= -->
+        <div id="branchesTab">
+            <div class="action-bar">
+                <span style="font-size: 13px; font-weight: bold; color: #1e293b;">Active College Branches</span>
+                <button class="btn-add" onclick="openModal('addBranchModal')">➕ Add Branch</button>
+            </div>
+
+            <div class="branch-grid">
+                <!-- BCA -->
+                <div class="branch-card">
+                    <div class="branch-title">
+                        <span>Bachelor of Computer App (BCA)</span>
+                        <span style="font-size: 11px; color: #2563eb;">3 Years</span>
+                    </div>
+                    <p style="font-size: 11px; color: #64748b;">Dept: Computer Science & IT</p>
+                    <div class="sem-pills">
+                        <span class="sem-pill">Sem 1</span>
+                        <span class="sem-pill">Sem 2</span>
+                        <span class="sem-pill">Sem 3</span>
+                        <span class="sem-pill">Sem 4</span>
+                        <span class="sem-pill">Sem 5</span>
+                        <span class="sem-pill">Sem 6</span>
+                    </div>
+                </div>
+
+                <!-- BBA -->
+                <div class="branch-card">
+                    <div class="branch-title">
+                        <span>Bachelor of Business Admin (BBA)</span>
+                        <span style="font-size: 11px; color: #2563eb;">3 Years</span>
+                    </div>
+                    <p style="font-size: 11px; color: #64748b;">Dept: Management Studies</p>
+                    <div class="sem-pills">
+                        <span class="sem-pill">Sem 1</span>
+                        <span class="sem-pill">Sem 2</span>
+                        <span class="sem-pill">Sem 3</span>
+                        <span class="sem-pill">Sem 4</span>
+                        <span class="sem-pill">Sem 5</span>
+                        <span class="sem-pill">Sem 6</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 2: SUBJECTS MASTER ================= -->
+        <div id="subjectsTab" style="display: none;">
+            <div class="action-bar">
+                <span style="font-size: 13px; font-weight: bold; color: #1e293b;">Subject Directory</span>
+                <button class="btn-add" onclick="openModal('addSubjectModal')">➕ Create Subject</button>
+            </div>
+
+            <div class="card">
+                <div class="card-body" style="padding: 0; overflow-x: auto;">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Subject Name</th>
+                                <th>Branch & Sem</th>
+                                <th>Type</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><b>BCA-501</b></td>
+                                <td>Java Programming</td>
+                                <td>BCA - Sem 5</td>
+                                <td><span class="badge-tag badge-theory">Theory</span></td>
+                                <td><a href="#" style="color:#dc2626; text-decoration:none; font-weight:bold;">🗑️ Delete</a></td>
+                            </tr>
+                            <tr>
+                                <td><b>BCA-502</b></td>
+                                <td>Web Technologies Lab</td>
+                                <td>BCA - Sem 5</td>
+                                <td><span class="badge-tag badge-lab">Practical Lab</span></td>
+                                <td><a href="#" style="color:#dc2626; text-decoration:none; font-weight:bold;">🗑️ Delete</a></td>
+                            </tr>
+                            <tr>
+                                <td><b>BBA-101</b></td>
+                                <td>Business Communication</td>
+                                <td>BBA - Sem 1</td>
+                                <td><span class="badge-tag badge-theory">Theory</span></td>
+                                <td><a href="#" style="color:#dc2626; text-decoration:none; font-weight:bold;">🗑️ Delete</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 3: WEEKLY ROUTINE & TIMETABLE ================= -->
+        <div id="timetableTab" style="display: none;">
+            <div class="card">
+                <div class="card-header">
+                    <span>📅 Manage Routine & Class Timetable</span>
+                </div>
+                <div class="card-body">
+                    <div class="tt-filter">
+                        <select>
+                            <option>Branch: BCA</option>
+                            <option>Branch: BBA</option>
+                        </select>
+                        <select>
+                            <option>Semester: 5th Sem</option>
+                            <option>Semester: 3rd Sem</option>
+                            <option>Semester: 1st Sem</option>
+                        </select>
+                    </div>
+
+                    <div style="margin-bottom: 12px; display:flex; justify-content:space-between; align-items:center;">
+                        <b style="font-size: 13px;">Monday Routine</b>
+                        <button class="btn-add" style="padding: 5px 10px; font-size:11px;" onclick="openModal('addSlotModal')">➕ Add Lecture Slot</button>
+                    </div>
+
+                    <!-- Slot 1 -->
+                    <div class="time-slot-card">
+                        <div class="time-slot-info">
+                            <h4>09:30 AM - 10:30 AM | Advanced Java</h4>
+                            <p>Faculty: Dr. Rajesh Kumar | Room No: Lab 2</p>
+                        </div>
+                        <span style="font-size: 12px; cursor:pointer;">✏️</span>
+                    </div>
+
+                    <!-- Slot 2 -->
+                    <div class="time-slot-card">
+                        <div class="time-slot-info">
+                            <h4>10:30 AM - 11:30 AM | Operating Systems</h4>
+                            <p>Faculty: Prof. Anita Singh | Room No: LH-104</p>
+                        </div>
+                        <span style="font-size: 12px; cursor:pointer;">✏️</span>
+                    </div>
+
+                    <!-- Slot 3 (Lunch Break) -->
+                    <div class="time-slot-card" style="border-left-color: #eab308; background:#fefce8;">
+                        <div class="time-slot-info">
+                            <h4 style="color: #a16207;">01:00 PM - 01:30 PM | ☕ Lunch Break</h4>
+                            <p>Cafeteria / Central Lawn</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 4: TERM DATES & CALENDAR ================= -->
+        <div id="calendarTab" style="display: none;">
+            <div class="card">
+                <div class="card-header">
+                    <span>🗓️ Academic Term Dates Configuration</span>
+                </div>
+                <div class="card-body">
+                    <form onsubmit="alert('Academic Calendar Configuration Saved!'); return false;">
+                        <div class="form-group">
+                            <label>Current Academic Session</label>
+                            <input type="text" value="2026 - 2027" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Semester Start Date</label>
+                            <input type="date" value="2026-08-01" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Mid-Term Exams Start Date</label>
+                            <input type="date" value="2026-10-15" required>
+                        </div>
+                        <div class="form-group">
+                            <label>End Semester Exams Start Date</label>
+                            <input type="date" value="2026-12-10" required>
+                        </div>
+                        <button type="submit" class="btn-submit">💾 Save Term Configuration</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal: Add Branch -->
+    <div class="modal" id="addBranchModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🏢 Add New Branch</h3>
+                <span style="cursor:pointer;" onclick="closeModal('addBranchModal')">✕</span>
+            </div>
+            <form onsubmit="saveData(event, 'Branch', 'addBranchModal')">
+                <div class="form-group">
+                    <label>Branch Name</label>
+                    <input type="text" placeholder="e.g. B.Tech Computer Science" required>
+                </div>
+                <div class="form-group">
+                    <label>Department</label>
+                    <input type="text" placeholder="e.g. Engineering" required>
+                </div>
+                <div class="form-group">
+                    <label>Total Semesters</label>
+                    <select required>
+                        <option value="6">6 Semesters (3 Years)</option>
+                        <option value="8">8 Semesters (4 Years)</option>
+                        <option value="4">4 Semesters (2 Years)</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit">✅ Save Branch</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Add Subject -->
+    <div class="modal" id="addSubjectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📚 Create New Subject</h3>
+                <span style="cursor:pointer;" onclick="closeModal('addSubjectModal')">✕</span>
+            </div>
+            <form onsubmit="saveData(event, 'Subject', 'addSubjectModal')">
+                <div class="form-group">
+                    <label>Subject Name</label>
+                    <input type="text" placeholder="e.g. Database Systems" required>
+                </div>
+                <div class="form-group">
+                    <label>Subject Code</label>
+                    <input type="text" placeholder="e.g. BCA-503" required>
+                </div>
+                <div class="form-group">
+                    <label>Branch & Semester</label>
+                    <select required>
+                        <option>BCA - Semester 5</option>
+                        <option>BCA - Semester 3</option>
+                        <option>BBA - Semester 1</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Type</label>
+                    <select required>
+                        <option>Theory</option>
+                        <option>Practical Lab</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit">✅ Save Subject</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Add Lecture Slot -->
+    <div class="modal" id="addSlotModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>⏰ Add Timetable Slot</h3>
+                <span style="cursor:pointer;" onclick="closeModal('addSlotModal')">✕</span>
+            </div>
+            <form onsubmit="saveData(event, 'Timetable Slot', 'addSlotModal')">
+                <div class="form-group">
+                    <label>Subject</label>
+                    <select required>
+                        <option>BCA-501 Java Programming</option>
+                        <option>BCA-502 Web Technologies</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Faculty</label>
+                    <select required>
+                        <option>Dr. Rajesh Kumar</option>
+                        <option>Prof. Sunita Mehta</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Timing Slot</label>
+                    <input type="text" placeholder="e.g. 11:30 AM - 12:30 PM" required>
+                </div>
+                <div class="form-group">
+                    <label>Room / Lab No.</label>
+                    <input type="text" placeholder="e.g. LH-102 or Computer Lab 1" required>
+                </div>
+                <button type="submit" class="btn-submit">✅ Add to Routine</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript Functions -->
+    <script>
+        // Toggle Sidebar Drawer
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // Switch Tabs
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const tabs = ['branchesTab', 'subjectsTab', 'timetableTab', 'calendarTab'];
+            tabs.forEach(id => {
+                document.getElementById(id).style.display = (id === tabId) ? 'block' : 'none';
+            });
+        }
+
+        // Modal Controls
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function saveData(e, type, modalId) {
+            e.preventDefault();
+            alert("✅ New " + type + " added successfully!");
+            closeModal(modalId);
+        }
+    </script>
+</body>
+</html>

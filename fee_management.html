@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fee Management - College ERP Admin</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f4f6f9; color: #333; padding-bottom: 40px; }
+
+        /* Top Navbar */
+        .navbar {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff; padding: 14px 18px; display: flex;
+            justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .nav-left { display: flex; align-items: center; gap: 12px; }
+        .menu-btn { font-size: 22px; cursor: pointer; color: #ffffff; line-height: 1; user-select: none; }
+        .nav-title { font-size: 17px; font-weight: bold; letter-spacing: 0.5px; }
+        .notification-box { position: relative; cursor: pointer; font-size: 20px; }
+        .notification-badge {
+            position: absolute; top: -3px; right: -5px;
+            background: #ef4444; color: white; font-size: 9px;
+            font-weight: bold; padding: 2px 5px; border-radius: 50%;
+            border: 1px solid #0f172a;
+        }
+
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px);
+            display: none; z-index: 200; opacity: 0; transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.active { display: block; opacity: 1; }
+
+        /* Sidebar Navigation Drawer */
+        .sidebar {
+            position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
+            background: #ffffff; z-index: 201; transition: left 0.3s ease;
+            display: flex; flex-direction: column; box-shadow: 4px 0 15px rgba(0,0,0,0.2);
+        }
+        .sidebar.active { left: 0; }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff; padding: 20px 18px; display: flex;
+            justify-content: space-between; align-items: center;
+        }
+        .sidebar-header h3 { font-size: 16px; font-weight: bold; }
+        .close-btn { font-size: 22px; cursor: pointer; color: #cbd5e1; }
+
+        .sidebar-menu { list-style: none; padding: 15px 0; flex-grow: 1; overflow-y: auto; }
+        .sidebar-menu li a {
+            display: flex; align-items: center; gap: 14px;
+            padding: 12px 20px; font-size: 13.5px; font-weight: 600;
+            color: #334155; text-decoration: none; transition: background 0.2s, color 0.2s;
+        }
+        .sidebar-menu li a:hover, .sidebar-menu li a.active {
+            background: #f1f5f9; color: #0f172a; border-left: 4px solid #2563eb;
+        }
+        .sidebar-menu li a .icon { font-size: 18px; width: 24px; text-align: center; }
+
+        .sidebar-divider { height: 1px; background: #e2e8f0; margin: 10px 0; }
+
+        .container { padding: 15px; }
+
+        /* Metrics Summary */
+        .metrics-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
+        .metric-card {
+            background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px;
+            padding: 12px; text-align: center;
+        }
+        .metric-value { font-size: 18px; font-weight: bold; color: #0f172a; margin-top: 4px; }
+        .metric-title { font-size: 11px; color: #64748b; font-weight: 600; }
+
+        /* Navigation Tabs */
+        .tab-container {
+            display: flex; background: #e2e8f0; border-radius: 10px;
+            padding: 4px; margin-bottom: 15px; gap: 4px; overflow-x: auto;
+        }
+        .tab-btn {
+            flex: 1; padding: 10px; border: none; border-radius: 8px;
+            font-size: 12px; font-weight: bold; color: #64748b;
+            background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;
+        }
+        .tab-btn.active { background: #ffffff; color: #0f172a; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
+
+        /* Card Container */
+        .card {
+            background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0;
+            margin-bottom: 15px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        }
+        .card-header {
+            background: #f8fafc; padding: 12px 15px; border-bottom: 1px solid #e2e8f0;
+            font-size: 13.5px; font-weight: bold; color: #0f172a; display: flex;
+            justify-content: space-between; align-items: center;
+        }
+        .card-body { padding: 15px; }
+
+        /* Form Controls */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 12px; }
+        .form-group { margin-bottom: 10px; }
+        .form-group label { display: block; font-size: 11px; font-weight: bold; color: #475569; margin-bottom: 4px; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; outline: none;
+        }
+
+        .btn-submit {
+            width: 100%; background: #2563eb; color: white; border: none; padding: 10px;
+            border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer;
+        }
+
+        /* Custom Table */
+        .custom-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; }
+        .custom-table th { background: #f1f5f9; padding: 10px; color: #475569; font-weight: 700; border-bottom: 1px solid #cbd5e1; }
+        .custom-table td { padding: 10px; border-bottom: 1px solid #e2e8f0; color: #1e293b; }
+
+        .badge-status { font-size: 10px; font-weight: bold; padding: 3px 8px; border-radius: 12px; }
+        .badge-paid { background: #dcfce7; color: #15803d; }
+        .badge-pending { background: #fee2e2; color: #b91c1c; }
+        .badge-partial { background: #fef3c7; color: #b45309; }
+
+        .btn-receipt {
+            background: #0284c7; color: white; border: none; padding: 4px 8px;
+            border-radius: 4px; font-size: 10px; font-weight: bold; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <div class="navbar">
+        <div class="nav-left">
+            <span class="menu-btn" onclick="toggleSidebar()">☰</span>
+            <span class="nav-title">Fee Management</span>
+        </div>
+        <div class="notification-box" onclick="window.location.href='admin_notification.html'">
+            🔔
+            <span class="notification-badge">5</span>
+        </div>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar Navigation Drawer -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>Admin Portal</h3>
+            <span class="close-btn" onclick="toggleSidebar()">✕</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="admin_dashboard.html"><span class="icon">📊</span> Master Dashboard</a></li>
+            <li><a href="user_management.html"><span class="icon">👥</span> User Management</a></li>
+            <li><a href="academic_setup.html"><span class="icon">🎓</span> Academic Setup</a></li>
+            <li><a href="fee_management.html" class="active"><span class="icon">💳</span> Fee Management</a></li>
+            <li><a href="bus_transport.html"><span class="icon">🚌</span> Bus & Transport</a></li>
+            <li><a href="reports_compliance.html"><span class="icon">📈</span> Reports & Compliance</a></li>
+            <li><a href="admin_notification.html"><span class="icon">🔔</span> Notification</a></li>
+            <li><a href="admin_settings.html"><span class="icon">⚙️</span> Setting</a></li>
+            <div class="sidebar-divider"></div>
+            <li><a href="login.html" style="color: #ef4444;"><span class="icon">🚪</span> Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="container">
+
+        <!-- Metrics -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-title">Total Collected</div>
+                <div class="metric-value" style="color: #16a34a;">₹ 12,45,000</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">Total Dues Pending</div>
+                <div class="metric-value" style="color: #dc2626;">₹ 3,20,000</div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="tab-container">
+            <button class="tab-btn active" onclick="switchTab('updateTab', this)">💳 Collect Fee</button>
+            <button class="tab-btn" onclick="switchTab('recordsTab', this)">📋 Fee Records</button>
+            <button class="tab-btn" onclick="switchTab('structureTab', this)">⚙️ Fee Structure</button>
+        </div>
+
+        <!-- ================= TAB 1: COLLECT & UPDATE FEE ================= -->
+        <div id="updateTab">
+            <div class="card">
+                <div class="card-header">
+                    <span>💳 Update Student Fee Status</span>
+                </div>
+                <div class="card-body">
+                    <form onsubmit="updateFeeStatus(event)">
+                        <div class="form-group">
+                            <label>Student Roll No. or Reg ID</label>
+                            <input type="text" placeholder="e.g. 245210" required>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Course / Branch</label>
+                                <select>
+                                  <option>BCA - Sem 1</option>
+                                  <option>BCA - Sem 2</option>
+                                  <option>BCA - Sem 3</option>
+                                  <option>BCA - Sem 4</option>
+                                    <option>BCA - Sem 5</option>
+                                  <option>BCA - Sem 6</option>
+                                  <option>BBA - Sem 1</option>
+                                  <option>BBA - Sem 2</option>
+                                    <option>BBA - Sem 3</option>
+                                  <option>BBA - Sem 4</option>
+                                  <option>BBA - Sem 5</option>
+                                  <option>BBA - Sem 6</option>
+                                    <option>B.Tech - Sem 1</option>
+                                  <option>B.Tech - Sem 2</option>
+                                  <option>B.Tech - Sem 3</option>
+                                  <option>B.Tech - Sem 4</option>
+                                  <option>B.Tech - Sem 5</option>
+                                  <option>B.Tech - Sem 6</option>
+                                  <option>B.Tech - Sem 7</option>
+                                  <option>B.Tech - Sem 8</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Payment Head</label>
+                                <select>
+                                    <option>Tuition / Semester Fee</option>
+                                    <option>Bus Transport Fee</option>
+                                    <option>Examination Fee</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Amount Received (₹)</label>
+                                <input type="number" placeholder="e.g. 25000" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Payment Status</label>
+                                <select>
+                                    <option value="Paid">Fully Paid</option>
+                                    <option value="Partial">Partial Payment</option>
+                                    <option value="Pending">Pending / Unpaid</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Payment Method</label>
+                            <select>
+                                <option>Cash (Counter)</option>
+                                <option>UPI / NetBanking</option>
+                                <option>Bank Draft / Cheque</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn-submit">✅ Update Fee & Generate Receipt</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 2: RECORDS & TRANSACTIONS ================= -->
+        <div id="recordsTab" style="display: none;">
+            <div class="card">
+                <div class="card-header">
+                    <span>📋 Student Fee History & Status</span>
+                </div>
+                <div class="card-body" style="padding: 0; overflow-x: auto;">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Roll No & Course</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><b>Vikas Verma</b></td>
+                                <td>245210 (BCA 5th)</td>
+                                <td><span class="badge-status badge-paid">Fully Paid</span></td>
+                                <td><button class="btn-receipt" onclick="alert('🧾 Printing Receipt...')">📄 Receipt</button></td>
+                            </tr>
+                            <tr>
+                                <td><b>Neha Singh</b></td>
+                                <td>245218 (BCA 5th)</td>
+                                <td><span class="badge-status badge-partial">₹10,000 Due</span></td>
+                                <td><button class="btn-receipt" onclick="alert('🧾 Printing Receipt...')">📄 Receipt</button></td>
+                            </tr>
+                            <tr>
+                                <td><b>Rohan Gupta</b></td>
+                                <td>210109 (BBA 3rd)</td>
+                                <td><span class="badge-status badge-pending">₹25,000 Due</span></td>
+                                <td><button class="btn-receipt" onclick="alert('📩 Sending Fee Reminder Notice...')">📨 Remind</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 3: FEE STRUCTURE SETUP ================= -->
+        <div id="structureTab" style="display: none;">
+            <div class="card">
+                <div class="card-header">
+                    <span>⚙️ Course Fee Master Setup</span>
+                </div>
+                <div class="card-body">
+                    <form onsubmit="alert('✅ Fee structure saved successfully!');">
+                        <div class="form-group">
+                            <label>Select Course</label>
+                            <select>
+                                <option>BCA (Bachelor of Computer Applications)</option>
+                                <option>BBA (Bachelor of Business Admin)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Tuition Fee per Semester (₹)</label>
+                            <input type="number" value="25000">
+                        </div>
+                        <div class="form-group">
+                            <label>Examination Fee per Semester (₹)</label>
+                            <input type="number" value="2500">
+                        </div>
+                        <button type="submit" class="btn-submit">💾 Save Fee Structure</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JavaScript Functions -->
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const tabs = ['updateTab', 'recordsTab', 'structureTab'];
+            tabs.forEach(id => {
+                document.getElementById(id).style.display = (id === tabId) ? 'block' : 'none';
+            });
+        }
+
+                function updateFeeStatus(e) {
+            e.preventDefault();
+            
+            // Form se values lena
+            const rollNo = e.target.querySelector('input[type="text"]').value;
+            const amountPaid = e.target.querySelectorAll('input[type="number"]')[0].value;
+            const status = e.target.querySelectorAll('select')[2].value;
+
+            // Student Fee Object
+            const studentFeeData = {
+                rollNo: rollNo,
+                amountPaid: amountPaid,
+                status: status,
+                lastUpdated: new Date().toLocaleDateString()
+            };
+
+               // Backend API par data bhejna (POST Request)
+    fetch('http://localhost:3000/api/fee-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(studentFeeData)
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert("✅ Backend me Fee update ho gayi!");
+        switchTab('recordsTab', document.querySelectorAll('.tab-btn')[1]);
+    })
+    .catch(err => {
+        console.error("Error:", err);
+        alert("❌ Server se connect nahi ho paya!");
+    });
+
+
+            alert("✅ Student (Roll: " + rollNo + ") ki fee update ho gayi hai!");
+            switchTab('recordsTab', document.querySelectorAll('.tab-btn')[1]);
+        }
+
+    </script>
+</body>
+</html>
