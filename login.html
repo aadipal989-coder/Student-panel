@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusFlow - Kanpur Institute of Technology</title>
+  <!-- Google Fonts & Lucide Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      background: #0f172a; /* Soft Dark Slate Background */
+      color: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* Split Screen Layout */
+    .login-wrapper {
+      display: flex;
+      width: 100%;
+      min-height: 100vh;
+    }
+
+    /* Left Side: Campus Image Background */
+    .hero-section {
+      flex: 1.1;
+      background: linear-gradient(135deg, rgba(26, 75, 142, 0.88), rgba(15, 23, 42, 0.95)), 
+                  url('https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=1200') center/cover no-repeat;
+      padding: 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      color: #ffffff;
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .hero-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .hero-header-icon {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .college-name {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: #ffffff;
+    }
+
+    .college-subtitle {
+      font-size: 0.75rem;
+      color: #93c5fd;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+    }
+
+    .hero-body {
+      max-width: 500px;
+    }
+
+    .hero-body h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+
+    .hero-body p {
+      font-size: 0.98rem;
+      color: #94a3b8;
+      line-height: 1.6;
+    }
+
+    .hero-footer {
+      font-size: 0.82rem;
+      color: #64748b;
+    }
+
+    /* Right Side: Form Container */
+    .form-section {
+      flex: 1;
+      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 24px;
+    }
+
+    .form-card {
+      width: 100%;
+      max-width: 400px;
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 32px 28px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .brand-title-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #60a5fa;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .main-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #f8fafc;
+      margin-bottom: 6px;
+      letter-spacing: -0.5px;
+    }
+
+    .description {
+      font-size: 0.9rem;
+      color: #94a3b8;
+      margin-bottom: 24px;
+    }
+
+    /* Role Selector Tabs */
+    .role-tabs {
+      background-color: #0f172a;
+      padding: 4px;
+      border-radius: 12px;
+      display: flex;
+      gap: 4px;
+      margin-bottom: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .role-btn {
+      flex: 1;
+      padding: 10px 0;
+      border: none;
+      background: transparent;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #94a3b8;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .role-btn.active {
+      background-color: #1d4ed8;
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(29, 78, 216, 0.4);
+    }
+
+    /* Form Inputs */
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #e2e8f0;
+      margin-bottom: 8px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 14px 16px;
+      background-color: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      font-size: 0.92rem;
+      color: #f8fafc;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .form-input::placeholder {
+      color: #64748b;
+    }
+
+    .form-input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+    }
+
+    /* Primary Submit Button */
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      background-color: #2563eb;
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 24px;
+      transition: background-color 0.2s ease;
+    }
+
+    .submit-btn:hover {
+      background-color: #1d4ed8;
+    }
+
+    .footer-note {
+      text-align: center;
+      font-size: 0.78rem;
+      color: #64748b;
+      margin-top: 24px;
+      line-height: 1.5;
+    }
+
+    .footer-note a {
+      color: #60a5fa;
+      text-decoration: underline;
+      font-weight: 600;
+    }
+
+    /* Tablet Portrait View Fix */
+    @media (max-width: 900px) {
+      .login-wrapper {
+        flex-direction: column;
+      }
+      .hero-section {
+        padding: 24px 20px;
+        min-height: 180px;
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .hero-body h1 {
+        font-size: 1.6rem;
+        margin-top: 12px;
+        margin-bottom: 0;
+      }
+      .hero-body p, .hero-footer {
+        display: none;
+      }
+      .form-section {
+        padding: 24px 16px;
+      }
+      .form-card {
+        padding: 24px 20px;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-wrapper">
+    <!-- Top / Left Hero Banner -->
+    <div class="hero-section">
+      <div class="hero-header">
+        <div class="hero-header-icon">
+          <i data-lucide="graduation-cap" style="width: 28px; height: 28px; color: #ffffff;"></i>
+        </div>
+        <div>
+          <div class="college-name">Kanpur Institute of Technology</div>
+          <div class="college-subtitle">CAMPUSFLOW ERP SYSTEM</div>
+        </div>
+      </div>
+
+      <div class="hero-body">
+        <h1>Empowering Next-Gen Campus Life.</h1>
+        <p>Manage attendance, live bus tracking, fee transactions, and academic performance seamlessly in one unified portal.</p>
+      </div>
+
+      <div class="hero-footer">
+        &copy; CampusFlow ERP &bull; Kanpur Institute of Technology
+      </div>
+    </div>
+
+    <!-- Right / Bottom Form Section -->
+    <div class="form-section">
+      <div class="form-card">
+        
+        <div class="brand-title-badge">SECURE CAMPUS ACCESS</div>
+        <h1 class="main-title">Welcome back.</h1>
+        <p class="description">Choose your workspace to continue.</p>
+
+        <!-- Role Selection Tabs -->
+        <div class="role-tabs">
+          <button type="button" class="role-btn active" onclick="switchRole('Student')">Student</button>
+          <button type="button" class="role-btn" onclick="switchRole('Faculty')">Faculty</button>
+          <button type="button" class="role-btn" onclick="switchRole('Admin')">Admin</button>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label class="form-label" id="userLabel">Student User ID</label>
+            <input 
+              type="text" 
+              id="userInput" 
+              class="form-input" 
+              placeholder="Enter your Student ID (e.g., STU1024)" 
+              required 
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Access code</label>
+            <input 
+              type="password" 
+              id="passwordInput"
+              class="form-input" 
+              placeholder="Enter your password" 
+              required 
+            />
+          </div>
+
+          <button type="submit" class="submit-btn" id="submitBtn">
+            <span>Enter student workspace</span>
+            <i data-lucide="arrow-up-right" style="width: 18px; height: 18px;"></i>
+          </button>
+        </form>
+
+        <p class="footer-note">
+          By continuing, you agree to Kanpur Institute of Technology's campus policy.<br>
+          Need help? <a href="#">Contact service desk.</a>
+        </p>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    let currentRole = 'Student';
+
+    function switchRole(role) {
+      currentRole = role;
+      
+      const buttons = document.querySelectorAll('.role-btn');
+      buttons.forEach(btn => {
+        if (btn.innerText === role) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      const userLabel = document.getElementById('userLabel');
+      const userInput = document.getElementById('userInput');
+      const submitBtn = document.getElementById('submitBtn');
+
+      if (role === 'Student') {
+        userLabel.innerText = 'Student User ID';
+        userInput.placeholder = 'Enter your Student ID (e.g., STU1024)';
+        submitBtn.querySelector('span').innerText = 'Enter student workspace';
+      } else if (role === 'Faculty') {
+        userLabel.innerText = 'Faculty User ID';
+        userInput.placeholder = 'Enter your Faculty ID (e.g., FAC2080)';
+        submitBtn.querySelector('span').innerText = 'Enter faculty workspace';
+      } else if (role === 'Admin') {
+        userLabel.innerText = 'Admin User ID';
+        userInput.placeholder = 'Enter Admin User ID (e.g., ADM001)';
+        submitBtn.querySelector('span').innerText = 'Enter admin workspace';
+      }
+
+      lucide.createIcons();
+    }
+
+    function handleLogin(event) {
+      event.preventDefault();
+      if (currentRole === 'Student') {
+        window.location.href = 'index.html';
+      } else if (currentRole === 'Faculty') {
+        window.location.href = 'teacher_dashboard.html';
+      } else if (currentRole === 'Admin') {
+        window.location.href = 'admin_dashboard.html';
+      }
+    }
+  </script>
+</body>
+</html>
