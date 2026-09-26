@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Master Dashboard - College ERP</title>
+    <!-- Chart.js Library for Responsive Graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f4f6f9; color: #333; padding-bottom: 30px; }
+
+        /* Top Navbar */
+        .navbar {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff; padding: 14px 18px; display: flex;
+            justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .nav-left { display: flex; align-items: center; gap: 12px; }
+        .menu-btn { font-size: 22px; cursor: pointer; color: #ffffff; line-height: 1; user-select: none; }
+        .nav-title { font-size: 17px; font-weight: bold; letter-spacing: 0.5px; }
+        .notification-box { position: relative; cursor: pointer; font-size: 20px; }
+        .notification-badge {
+            position: absolute; top: -3px; right: -5px;
+            background: #ef4444; color: white; font-size: 9px;
+            font-weight: bold; padding: 2px 5px; border-radius: 50%;
+            border: 1px solid #0f172a;
+        }
+
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px);
+            display: none; z-index: 200; opacity: 0; transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.active { display: block; opacity: 1; }
+
+        /* Sidebar Navigation Drawer */
+        .sidebar {
+            position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
+            background: #ffffff; z-index: 201; transition: left 0.3s ease;
+            display: flex; flex-direction: column; box-shadow: 4px 0 15px rgba(0,0,0,0.2);
+        }
+        .sidebar.active { left: 0; }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff; padding: 20px 18px; display: flex;
+            justify-content: space-between; align-items: center;
+        }
+        .sidebar-header h3 { font-size: 16px; font-weight: bold; }
+        .close-btn { font-size: 22px; cursor: pointer; color: #cbd5e1; }
+
+        .sidebar-menu { list-style: none; padding: 15px 0; flex-grow: 1; overflow-y: auto; }
+        .sidebar-menu li a {
+            display: flex; align-items: center; gap: 14px;
+            padding: 12px 20px; font-size: 13.5px; font-weight: 600;
+            color: #334155; text-decoration: none; transition: background 0.2s, color 0.2s;
+        }
+        .sidebar-menu li a:hover, .sidebar-menu li a.active {
+            background: #f1f5f9; color: #0f172a; border-left: 4px solid #2563eb;
+        }
+        .sidebar-menu li a .icon { font-size: 18px; width: 24px; text-align: center; }
+
+        .sidebar-divider { height: 1px; background: #e2e8f0; margin: 10px 0; }
+
+        /* Main Container */
+        .container { padding: 15px; }
+
+        /* Welcome Banner */
+        .welcome-card {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white; padding: 18px; border-radius: 12px; margin-bottom: 18px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08); display: flex;
+            justify-content: space-between; align-items: center;
+        }
+        .welcome-card h2 { font-size: 18px; margin-bottom: 4px; }
+        .welcome-card p { font-size: 12px; opacity: 0.85; }
+        .role-badge {
+            background: #2563eb; color: white; font-size: 11px;
+            padding: 4px 10px; border-radius: 20px; font-weight: bold;
+        }
+
+        /* Top Key Metrics Cards Grid */
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 12px; margin-bottom: 18px;
+        }
+        .stat-card {
+            background: #ffffff; padding: 14px; border-radius: 12px;
+            border: 1px solid #e2e8f0; box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+            text-align: center;
+        }
+        .stat-card .icon-box {
+            font-size: 22px; margin-bottom: 6px; display: inline-block;
+        }
+        .stat-card .value { font-size: 18px; font-weight: bold; color: #0f172a; }
+        .stat-card .title { font-size: 11px; font-weight: 600; color: #64748b; margin-top: 2px; }
+
+        /* Main Content Cards */
+        .card {
+            background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0;
+            margin-bottom: 18px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        }
+        .card-header {
+            background: #f8fafc; padding: 12px 15px; border-bottom: 1px solid #e2e8f0;
+            font-size: 13.5px; font-weight: bold; color: #0f172a; display: flex;
+            justify-content: space-between; align-items: center;
+        }
+        .card-body { padding: 15px; }
+
+        /* Department Wise Summary List */
+        .dept-item {
+            display: flex; flex-direction: column; gap: 6px;
+            margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px dashed #e2e8f0;
+        }
+        .dept-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+        .dept-info { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: #334155; }
+        .progress-bar-bg { background: #e2e8f0; height: 8px; border-radius: 10px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; border-radius: 10px; background: #2563eb; }
+
+        /* Quick Shortcuts Grid */
+        .shortcuts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .shortcut-btn {
+            background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px;
+            padding: 12px; text-decoration: none; color: #1e293b; font-size: 12.5px;
+            font-weight: 600; display: flex; align-items: center; gap: 10px;
+            transition: background 0.2s;
+        }
+        .shortcut-btn:hover { background: #e2e8f0; }
+
+        /* System Activity Logs */
+        .log-list { list-style: none; font-size: 12px; }
+        .log-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 0; border-bottom: 1px solid #f1f5f9;
+        }
+        .log-item:last-child { border-bottom: none; }
+        .log-time { color: #94a3b8; font-size: 11px; }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+ <div class="navbar">
+    <div class="nav-left">
+        <span class="menu-btn" onclick="toggleSidebar()">☰</span>
+        <span class="nav-title">Admin Console</span>
+    </div>
+    <!-- Bell Icon Click Event -->
+    <div class="notification-box" onclick="window.location.href='admin_notification.html'">
+        🔔
+        <span class="notification-badge">5</span>
+    </div>
+</div>
+
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar Navigation Drawer -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>Admin Portal</h3>
+            <span class="close-btn" onclick="toggleSidebar()">✕</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="admin_dashboard.html" class="active"><span class="icon">📊</span> Master Dashboard</a></li>
+            <li><a href="user_management.html"><span class="icon">👥</span> User Management</a></li>
+            <li><a href="academic_setup.html"><span class="icon">🎓</span> Academic Setup</a></li>
+            <li><a href="bus_transport.html"><span class="icon">🚌</span> Bus & Transport</a></li>
+            <li><a href="reports_compliance.html"><span class="icon">📈</span> Reports & Compliance</a></li>
+           <li><a href="fee_management.html"><span class="icon">💳</span> Fee Management</a></li>
+ <li><a href="admin_notification.html"><span class="icon">🔔</span> Notification</a></li>
+           <li><a href="admin_profile.html"><span class="icon">👨‍🏫</span> My profile</a></li> 
+          <li><a href="admin_settings.html"><span class="icon">⚙️</span> Setting</a></li>
+            <div class="sidebar-divider"></div>
+            <li><a href="login.html" style="color: #ef4444;"><span class="icon">🚪</span> Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="container">
+
+        <!-- Welcome Banner -->
+        <div class="welcome-card">
+            <div>
+                <h2>Welcome, System Admin 👋</h2>
+                <p>Centralized College Control Center</p>
+            </div>
+            <span class="role-badge">SUPER ADMIN</span>
+        </div>
+
+        <!-- Metric Cards Grid (Total Students, Teachers, Classes, Attendance) -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="icon-box">🎓</div>
+                <div class="value">1,240</div>
+                <div class="title">Total Students</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon-box">👨‍🏫</div>
+                <div class="value">48</div>
+                <div class="title">Total Teachers</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon-box">🏫</div>
+                <div class="value">18</div>
+                <div class="title">Active Classes</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon-box">📈</div>
+                <div class="value" style="color: #16a34a;">86.4%</div>
+                <div class="title">Avg Attendance</div>
+            </div>
+        </div>
+
+        <!-- Overall College Attendance Graph -->
+        <div class="card">
+            <div class="card-header">
+                <span>📊 Overall Attendance Trend (Weekly)</span>
+            </div>
+            <div class="card-body">
+                <canvas id="attendanceChart" height="180"></canvas>
+            </div>
+        </div>
+
+        <!-- Department-wise Summary -->
+        <div class="card">
+            <div class="card-header">
+                <span>🏢 Department Attendance Summary</span>
+            </div>
+            <div class="card-body">
+                <!-- Computer Science -->
+                <div class="dept-item">
+                    <div class="dept-info">
+                        <span>Computer Science (CS & BCA)</span>
+                        <span>85%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: 85%; background: #2563eb;"></div>
+                    </div>
+                </div>
+
+                <!-- Management -->
+                <div class="dept-item">
+                    <div class="dept-info">
+                        <span>Management (BBA & MBA)</span>
+                        <span>78%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: 78%; background: #0284c7;"></div>
+                    </div>
+                </div>
+
+                <!-- Commerce -->
+                <div class="dept-item">
+                    <div class="dept-info">
+                        <span>Commerce (B.Com)</span>
+                        <span>91%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: 91%; background: #16a34a;"></div>
+                    </div>
+                </div>
+
+                <!-- Humanities -->
+                <div class="dept-item">
+                    <div class="dept-info">
+                        <span>Humanities & Arts</span>
+                        <span>72%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: 72%; background: #eab308;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Admin Actions -->
+        <div class="card">
+            <div class="card-header">
+                <span>⚡ Quick Management Actions</span>
+            </div>
+            <div class="card-body">
+                <div class="shortcuts-grid">
+                    <a href="user_management.html" class="shortcut-btn">
+                        <span>➕</span> Add User
+                    </a>
+                    <a href="academic_setup.html" class="shortcut-btn">
+                        <span>📚</span> Class Routine
+                    </a>
+                    <a href="bus_transport.html" class="shortcut-btn">
+                        <span>🚌</span> Bus Routes
+                    </a>
+                    <a href="reports_compliance.html" class="shortcut-btn">
+                        <span>📑</span> Audit Log
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Audit Logs -->
+        <div class="card">
+            <div class="card-header">
+                <span>📝 System Activity Logs</span>
+            </div>
+            <div class="card-body" style="padding-top: 5px; padding-bottom: 5px;">
+                <ul class="log-list">
+                    <li class="log-item">
+                        <span>👨‍🏫 Dr. Rajesh Kumar created OTP Session</span>
+                        <span class="log-time">10 mins ago</span>
+                    </li>
+                    <li class="log-item">
+                        <span>📩 3 Student Leave Requests Submitted</span>
+                        <span class="log-time">25 mins ago</span>
+                    </li>
+                    <li class="log-item">
+                        <span>🚌 Bus Route #4 location updated</span>
+                        <span class="log-time">1 hour ago</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JavaScript Functions & Graph Initialization -->
+    <script>
+        // Toggle Sidebar Drawer
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // Attendance Trend Chart (Chart.js)
+        const ctx = document.getElementById('attendanceChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                datasets: [{
+                    label: 'Overall Attendance %',
+                    data: [82, 88, 85, 90, 86, 80],
+                    borderColor: '#2563eb',
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                    fill: true,
+                    tension: 0.3,
+                    borderWidth: 2,
+                    pointBackgroundColor: '#2563eb'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 50,
+                        max: 100
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
