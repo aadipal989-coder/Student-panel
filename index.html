@@ -709,6 +709,34 @@
     });
   }
 </script>
+<!-- Live Fees Fetch Script -->
+<script>
+  async function loadStudentFees() {
+    // Logged-in student ka email (ya default student)
+    const studentEmail = localStorage.getItem('userEmail') || 'student@campus.com';
+
+    try {
+      const response = await fetch(`https://campusflow-backend.onrender.com/api/student/fees?email=${studentEmail}`);
+      const result = await response.json();
+
+      if (result.success && result.data) {
+        // UI IDs ko update karein (agar aapke HTML mein IDs alag hain toh wahan update ho jayega)
+        const totalElem = document.getElementById('total-fees');
+        const paidElem = document.getElementById('paid-amount');
+        const dueElem = document.getElementById('due-amount');
+
+        if (totalElem) totalElem.textContent = result.data.totalFees;
+        if (paidElem) paidElem.textContent = result.data.paidAmount;
+        if (dueElem) dueElem.textContent = result.data.dueAmount;
+      }
+    } catch (error) {
+      console.error("Fee fetching error:", error);
+    }
+  }
+
+  // Page load hone par run karein
+  window.addEventListener('DOMContentLoaded', loadStudentFees);
+</script>
 
 </body>
 </html>
