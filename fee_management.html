@@ -356,42 +356,46 @@
             });
         }
 
-                function updateFeeStatus(e) {
-            e.preventDefault();
-            
-            // Form se values lena
-            const rollNo = e.target.querySelector('input[type="text"]').value;
-            const amountPaid = e.target.querySelectorAll('input[type="number"]')[0].value;
-            const status = e.target.querySelectorAll('select')[2].value;
+         function updateFeeStatus(e) {
+  e.preventDefault();
 
-            // Student Fee Object
-            const studentFeeData = {
-                rollNo: rollNo,
-                amountPaid: amountPaid,
-                status: status,
-                lastUpdated: new Date().toLocaleDateString()
-            };
+  // Form se values lena
+  const studentEmail = e.target.querySelector('input[type="email"]')?.value || 'student@campus.com';
+  const totalFees = e.target.querySelectorAll('input[type="number"]')[0]?.value || 0;
+  const paidAmount = e.target.querySelectorAll('input[type="number"]')[1]?.value || 0;
 
-               // Backend API par data bhejna (POST Request)
-    fetch('http://localhost:3000/api/fee-status', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(studentFeeData)
-    })
-    .then(res => res.json())
-    .then(data => {
-        alert("✅ Backend me Fee update ho gayi!");
-        switchTab('recordsTab', document.querySelectorAll('.tab-btn')[1]);
-    })
-    .catch(err => {
-        console.error("Error:", err);
-        alert("❌ Server se connect nahi ho paya!");
-    });
+  const studentFeeData = {
+    studentEmail: studentEmail,
+    totalFees: Number(totalFees),
+    paidAmount: Number(paidAmount)
+  };
+
+  // Live Backend API par data bhejna
+  fetch('https://campusflow-backend-wg92.onrender.com/api/admin/update-fee', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(studentFeeData)
+  })
+  .then(res => res.json())
+  .then(data => {
+    if(data.success) {
+      alert("✅ Backend & MongoDB me Fee update ho gayi!");
+      switchTab('recordsTab', document.querySelectorAll('.tab-btn')[1]);
+    } else {
+      alert("❌ Fee Update Failed: " + data.message);
+    }
+  })
+  .catch(err => {
+    console.error("Error:", err);
+    alert("❌ Server se connect nahi ho paya!");
+  });
+}
+
 
 
             alert("✅ Student (Roll: " + rollNo + ") ki fee update ho gayi hai!");
             switchTab('recordsTab', document.querySelectorAll('.tab-btn')[1]);
-        }
+      
 
     </script>
 </body>
