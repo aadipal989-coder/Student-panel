@@ -359,18 +359,24 @@
          function updateFeeStatus(e) {
   e.preventDefault();
 
-  // Form se values lena
-  const studentEmail = e.target.querySelector('input[type="email"]')?.value || 'student@campus.com';
-  const totalFees = e.target.querySelectorAll('input[type="number"]')[0]?.value || 0;
-  const paidAmount = e.target.querySelectorAll('input[type="number"]')[1]?.value || 0;
+  const inputs = e.target.querySelectorAll('input');
+  
+  // Form input values (Roll No, Total Amount, Paid Amount)
+  const rollNo = inputs[0]?.value;
+  const totalAmount = Number(inputs[1]?.value) || 0;
+  const paidAmount = Number(inputs[2]?.value) || 0;
+
+  if(!rollNo) {
+    alert("Kripya Student Roll No / Reg ID dalein!");
+    return;
+  }
 
   const studentFeeData = {
-    studentEmail: studentEmail,
-    totalFees: Number(totalFees),
-    paidAmount: Number(paidAmount)
+    studentId: rollNo,
+    totalFees: totalAmount,
+    paidAmount: paidAmount
   };
 
-  // Live Backend API par data bhejna
   fetch('https://campusflow-backend-wg92.onrender.com/api/admin/update-fee', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -380,7 +386,9 @@
   .then(data => {
     if(data.success) {
       alert("✅ Backend & MongoDB me Fee update ho gayi!");
-      switchTab('recordsTab', document.querySelectorAll('.tab-btn')[1]);
+      if(typeof switchTab === 'function') {
+        switchTab('recordsTab', document.querySelectorAll('.tab-btn')[1]);
+      }
     } else {
       alert("❌ Fee Update Failed: " + data.message);
     }
@@ -390,6 +398,7 @@
     alert("❌ Server se connect nahi ho paya!");
   });
 }
+
 
 
 
